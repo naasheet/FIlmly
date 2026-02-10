@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: filmly-postgres
+    environment:
+      POSTGRES_USER: filmly
+      POSTGRES_PASSWORD: filmly_password
+      POSTGRES_DB: filmly
+    ports:
+      - "5432:5432"
+    volumes:
+      - filmly_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  filmly_postgres_data:

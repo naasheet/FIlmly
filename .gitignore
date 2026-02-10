@@ -1,0 +1,11 @@
+node_modules/
+.pnpm-store/
+.env
+.env.*.local
+apps/api/.env
+apps/web/.env
+dist/
+build/
+.turbo/
+.DS_Store
+*.log

@@ -1,0 +1,8 @@
+{
+  "name": "filmly",
+  "private": true,
+  "packageManager": "pnpm@9.12.0",
+  "devDependencies": {
+    "turbo": "^2.8.2"
+  }
+}

@@ -1,0 +1,21 @@
+# Environment variables
+
+## apps/api
+Required:
+- DATABASE_URL
+- JWT_SECRET
+
+Optional:
+- PORT (default: 4000)
+- REDIS_URL
+- ACCESS_TOKEN_TTL (default: 15m)
+- REFRESH_TOKEN_TTL (default: 7d)
+- OMDB_API_KEY
+
+Examples:
+- `.env.example` for local + general settings
+- `.env.local.example` for local PostgreSQL
+
+## apps/web
+Required:
+- VITE_API_URL (default: http://localhost:4000)
