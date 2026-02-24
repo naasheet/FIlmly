@@ -1,9 +1,17 @@
 import { Router } from "express"
 import { param, query, validationResult } from "express-validator"
+import rateLimit from "express-rate-limit"
 import { authenticate } from "../middleware/auth"
 import { notificationService } from "../services/notificationService"
 
 const router = Router()
+
+const notificationLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 120,
+})
+
+router.use(notificationLimiter)
 
 const listValidation = [
   query("page").optional().isInt({ min: 1 }).toInt(),

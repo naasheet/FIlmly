@@ -10,6 +10,11 @@ type EnvVars = {
   PORT: string
   SUPABASE_URL?: string
   SUPABASE_SERVICE_ROLE_KEY?: string
+  BREVO_API_KEY?: string
+  BREVO_SENDER_EMAIL?: string
+  BREVO_SENDER_NAME?: string
+  RESET_CODE_TTL_MINUTES?: string
+  RESET_CODE_LENGTH?: string
 }
 
 function getEnv(name: string) {
@@ -30,4 +35,9 @@ export const env: EnvVars = {
   PORT: process.env.PORT ?? "4000",
   SUPABASE_URL: process.env.SUPABASE_URL,
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  BREVO_API_KEY: process.env.BREVO_API_KEY,
+  BREVO_SENDER_EMAIL: process.env.BREVO_SENDER_EMAIL,
+  BREVO_SENDER_NAME: process.env.BREVO_SENDER_NAME,
+  RESET_CODE_TTL_MINUTES: process.env.RESET_CODE_TTL_MINUTES,
+  RESET_CODE_LENGTH: process.env.RESET_CODE_LENGTH,
 }

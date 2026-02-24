@@ -5,9 +5,15 @@ import {
   logout,
   refreshAccessToken,
   register,
+  requestPasswordReset,
+  resetPassword,
 } from "../services/authService"
 
 const router = Router()
+const resetCodeLengthRaw = Number(process.env.RESET_CODE_LENGTH ?? "6")
+const resetCodeLength = Number.isFinite(resetCodeLengthRaw)
+  ? Math.max(6, Math.floor(resetCodeLengthRaw))
+  : 6
 
 const validate = (req: Parameters<typeof router.post>[1], res: any, next: any) => {
   const errors = validationResult(req)
@@ -78,6 +84,45 @@ router.post(
       return res.status(200).json(result)
     } catch (error: any) {
       return res.status(400).json({ message: error.message ?? "Logout failed" })
+    }
+  }
+)
+
+router.post(
+  "/forgot-password",
+  [body("identifier").isString().trim().isLength({ min: 1 })],
+  validate,
+  async (req, res) => {
+    try {
+      const { identifier } = req.body
+      await requestPasswordReset(identifier)
+      return res.status(200).json({
+        message: "If an account exists, a reset code has been sent to the email on file.",
+      })
+    } catch (error: any) {
+      return res.status(500).json({ message: error.message ?? "Unable to send reset code" })
+    }
+  }
+)
+
+router.post(
+  "/reset-password",
+  [
+    body("identifier").isString().trim().isLength({ min: 1 }),
+    body("code")
+      .isString()
+      .trim()
+      .matches(new RegExp(`^\\d{${resetCodeLength}}$`)),
+    body("newPassword").isString().isLength({ min: 8 }),
+  ],
+  validate,
+  async (req, res) => {
+    try {
+      const { identifier, code, newPassword } = req.body
+      const result = await resetPassword({ identifier, code, newPassword })
+      return res.status(200).json(result)
+    } catch (error: any) {
+      return res.status(400).json({ message: error.message ?? "Reset failed" })
     }
   }
 )

@@ -23,7 +23,7 @@ export default function HomePage() {
   const [spotlightFilms, setSpotlightFilms] = useState<Film[]>([])
   const [trending, setTrending] = useState<Film[]>([])
   const [todayPicks, setTodayPicks] = useState<Film[]>([])
-  const [loading, setLoading] = useState(true)
+  const [sectionsLoading, setSectionsLoading] = useState(true)
   const [stats, setStats] = useState({ watched: 0, watchlist: 0, reviews: 0 })
   const [trendingPage, setTrendingPage] = useState(1)
   const [trendingTotalPages, setTrendingTotalPages] = useState(1)
@@ -32,81 +32,106 @@ export default function HomePage() {
   useEffect(() => {
     let active = true
 
-    async function loadData() {
-      setLoading(true)
+    async function loadTrendingAndToday() {
+      setSectionsLoading(true)
       try {
-        // Load trending films
-        const trendingData = await getTrendingFilms("week", 1)
+        const [trendingResult, todayResult] = await Promise.allSettled([
+          getTrendingFilms("week", 1),
+          getTrendingFilms("day", 1),
+        ])
         if (!active) return
 
         const seenIds = new Set<number>()
-        const trendingResults = (trendingData?.results ?? [])
-          .filter((item: any) => Boolean(item.poster_path))
-          .filter((item: any) => {
-            if (seenIds.has(item.id)) return false
-            seenIds.add(item.id)
-            return true
-          })
-          .slice(0, 12)
-          .map((item: any) => ({
-            id: item.id,
-            title: item.title,
-            releaseDate: item.release_date ?? null,
-            posterPath: item.poster_path ?? null,
-            backdropPath: item.backdrop_path ?? null,
-            rating: item.vote_average ?? null,
-            overview: item.overview ?? null,
-          }))
 
-        setTrending(trendingResults)
-        setSpotlightFilms(trendingResults.slice(0, 7))
-        setTrendingPage(1)
-        setTrendingTotalPages(trendingData?.total_pages ?? 1)
-
-        // Load today's picks
-        const todayData = await getTrendingFilms("day", 1)
-        if (!active) return
-
-        const todayResults = (todayData?.results ?? [])
-          .filter((item: any) => Boolean(item.poster_path) && !seenIds.has(item.id))
-          .filter((item: any) => {
-            if (seenIds.has(item.id)) return false
-            seenIds.add(item.id)
-            return true
-          })
-          .slice(0, 8)
-          .map((item: any) => ({
-            id: item.id,
-            title: item.title,
-            releaseDate: item.release_date ?? null,
-            posterPath: item.poster_path ?? null,
-            rating: item.vote_average ?? null,
-          }))
-
-        setTodayPicks(todayResults)
-
-        // Load user stats
-        if (user) {
-          try {
-            const [watchlistRes, reviewsRes] = await Promise.all([
-              api.get("/watchlist/default").catch(() => ({ data: { items: [] } })),
-              api.get("/reviews/me").catch(() => ({ data: [] })),
-            ])
-            setStats({
-              watched: 0,
-              watchlist: watchlistRes.data?.items?.length ?? 0,
-              reviews: reviewsRes.data?.length ?? 0,
+        if (trendingResult.status === "fulfilled") {
+          const trendingData = trendingResult.value
+          const trendingResults = (trendingData?.results ?? [])
+            .filter((item: any) => Boolean(item.poster_path))
+            .filter((item: any) => {
+              if (seenIds.has(item.id)) return false
+              seenIds.add(item.id)
+              return true
             })
-          } catch { }
+            .slice(0, 12)
+            .map((item: any) => ({
+              id: item.id,
+              title: item.title,
+              releaseDate: item.release_date ?? null,
+              posterPath: item.poster_path ?? null,
+              backdropPath: item.backdrop_path ?? null,
+              rating: item.vote_average ?? null,
+              overview: item.overview ?? null,
+            }))
+
+          setTrending(trendingResults)
+          setSpotlightFilms(trendingResults.slice(0, 7))
+          setTrendingPage(1)
+          setTrendingTotalPages(trendingData?.total_pages ?? 1)
+        } else {
+          console.error("Failed to load trending films:", trendingResult.reason)
+        }
+
+        if (todayResult.status === "fulfilled") {
+          const todayData = todayResult.value
+          const todayResults = (todayData?.results ?? [])
+            .filter((item: any) => Boolean(item.poster_path) && !seenIds.has(item.id))
+            .filter((item: any) => {
+              if (seenIds.has(item.id)) return false
+              seenIds.add(item.id)
+              return true
+            })
+            .slice(0, 8)
+            .map((item: any) => ({
+              id: item.id,
+              title: item.title,
+              releaseDate: item.release_date ?? null,
+              posterPath: item.poster_path ?? null,
+              rating: item.vote_average ?? null,
+            }))
+
+          setTodayPicks(todayResults)
+        } else {
+          console.error("Failed to load today's picks:", todayResult.reason)
         }
       } catch (error) {
         console.error("Failed to load homepage:", error)
       } finally {
-        if (active) setLoading(false)
+        if (active) setSectionsLoading(false)
       }
     }
 
-    loadData()
+    loadTrendingAndToday()
+    return () => { active = false }
+  }, [])
+
+  useEffect(() => {
+    let active = true
+
+    async function loadStats() {
+      if (!user) {
+        if (active) {
+          setStats({ watched: 0, watchlist: 0, reviews: 0 })
+        }
+        return
+      }
+
+      try {
+        const [watchlistRes, reviewsRes] = await Promise.all([
+          api.get("/watchlist/default").catch(() => ({ data: { items: [] } })),
+          api.get("/reviews/me").catch(() => ({ data: [] })),
+        ])
+        if (!active) return
+        setStats({
+          watched: 0,
+          watchlist: watchlistRes.data?.items?.length ?? 0,
+          reviews: reviewsRes.data?.length ?? 0,
+        })
+      } catch {
+        // best-effort only
+      }
+    }
+
+    loadStats()
     return () => { active = false }
   }, [user])
 
@@ -255,7 +280,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {loading ? (
+          {sectionsLoading ? (
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="aspect-[2/3] animate-pulse rounded-2xl bg-white/5" />
@@ -286,7 +311,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {loading ? (
+          {sectionsLoading ? (
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="aspect-[2/3] animate-pulse rounded-2xl bg-white/5" />

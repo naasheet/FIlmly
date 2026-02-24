@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs"
 import { PrismaClient } from "@prisma/client"
 import crypto from "node:crypto"
 import { env } from "../config/env"
+import { sendPasswordResetCodeEmail } from "./emailService"
 
 const prisma = new PrismaClient()
 
@@ -26,6 +27,16 @@ type TokenPair = {
 const jwtSecret = env.JWT_SECRET
 const accessTokenTtlRaw = process.env.ACCESS_TOKEN_TTL ?? "15m"
 const refreshTokenTtlRaw = process.env.REFRESH_TOKEN_TTL ?? "7d"
+function toPositiveInt(value: string | undefined, fallback: number) {
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return fallback
+  }
+  return Math.floor(parsed)
+}
+
+const resetCodeTtlMinutes = Math.max(5, toPositiveInt(process.env.RESET_CODE_TTL_MINUTES, 10))
+const resetCodeLength = Math.max(6, toPositiveInt(process.env.RESET_CODE_LENGTH, 6))
 
 function parseDurationToMs(value: string): number {
   if (/^\d+$/.test(value)) {
@@ -53,6 +64,24 @@ function parseDurationToMs(value: string): number {
   }
 }
 
+function hashResetCode(code: string) {
+  return crypto.createHash("sha256").update(code).digest("hex")
+}
+
+function generateResetCode() {
+  const max = 10 ** resetCodeLength
+  const code = crypto.randomInt(0, max).toString().padStart(resetCodeLength, "0")
+  return code
+}
+
+async function findUserByIdentifier(identifier: string) {
+  return prisma.user.findFirst({
+    where: {
+      OR: [{ email: identifier }, { username: identifier }],
+    },
+  })
+}
+
 export async function register(data: RegisterInput) {
   const existing = await prisma.user.findFirst({
     where: {
@@ -78,11 +107,7 @@ export async function register(data: RegisterInput) {
 }
 
 export async function login(data: LoginInput) {
-  const user = await prisma.user.findFirst({
-    where: {
-      OR: [{ email: data.identifier }, { username: data.identifier }],
-    },
-  })
+  const user = await findUserByIdentifier(data.identifier)
   if (!user) {
     throw new Error("Invalid credentials")
   }
@@ -144,4 +169,85 @@ export async function logout(token: string) {
 
 export function verifyToken(token: string) {
   return jwt.verify(token, jwtSecret) as JwtPayload
+}
+
+export async function requestPasswordReset(identifier: string) {
+  const user = await findUserByIdentifier(identifier)
+  if (!user) {
+    return { sent: false }
+  }
+
+  await prisma.passwordResetCode.updateMany({
+    where: {
+      userId: user.id,
+      usedAt: null,
+      expiresAt: { gt: new Date() },
+    },
+    data: { usedAt: new Date() },
+  })
+
+  const code = generateResetCode()
+  const expiresAt = new Date(Date.now() + resetCodeTtlMinutes * 60 * 1000)
+
+  await prisma.passwordResetCode.create({
+    data: {
+      userId: user.id,
+      codeHash: hashResetCode(code),
+      expiresAt,
+    },
+  })
+
+  await sendPasswordResetCodeEmail({
+    toEmail: user.email,
+    toName: user.name,
+    code,
+    minutesValid: resetCodeTtlMinutes,
+  })
+
+  return { sent: true }
+}
+
+export async function resetPassword(params: {
+  identifier: string
+  code: string
+  newPassword: string
+}) {
+  const user = await findUserByIdentifier(params.identifier)
+  if (!user) {
+    throw new Error("Invalid reset request")
+  }
+
+  const codeHash = hashResetCode(params.code.trim())
+  const resetRecord = await prisma.passwordResetCode.findFirst({
+    where: {
+      userId: user.id,
+      codeHash,
+      usedAt: null,
+      expiresAt: { gt: new Date() },
+    },
+    orderBy: { createdAt: "desc" },
+  })
+
+  if (!resetRecord) {
+    throw new Error("Invalid or expired code")
+  }
+
+  const passwordHash = await bcrypt.hash(params.newPassword, 10)
+
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash },
+    }),
+    prisma.passwordResetCode.update({
+      where: { id: resetRecord.id },
+      data: { usedAt: new Date() },
+    }),
+    prisma.refreshToken.updateMany({
+      where: { userId: user.id },
+      data: { revoked: true },
+    }),
+  ])
+
+  return { success: true }
 }

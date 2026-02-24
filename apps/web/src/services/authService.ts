@@ -64,3 +64,27 @@ export async function logout(refreshToken: string) {
     throw new Error(normalizeApiError(error))
   }
 }
+
+export async function requestPasswordReset(identifier: string) {
+  try {
+    const res = await api.post<{ message: string }>("/auth/forgot-password", {
+      identifier,
+    })
+    return res.data
+  } catch (error) {
+    throw new Error(normalizeApiError(error))
+  }
+}
+
+export async function resetPassword(params: {
+  identifier: string
+  code: string
+  newPassword: string
+}) {
+  try {
+    const res = await api.post<{ success: boolean }>("/auth/reset-password", params)
+    return res.data
+  } catch (error) {
+    throw new Error(normalizeApiError(error))
+  }
+}

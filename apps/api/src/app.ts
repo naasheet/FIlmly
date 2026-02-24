@@ -14,11 +14,25 @@ app.use(express.json({ limit: "1mb" }))
 app.use(express.urlencoded({ extended: true }))
 app.use(morgan("dev"))
 
-const limiter = rateLimit({
+const readLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 600,
+  skip: (req) =>
+    (req.method !== "GET" && req.method !== "HEAD") ||
+    req.path.startsWith("/api/v1/notifications"),
+})
+app.use(readLimiter)
+
+const writeLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 300,
+  // Allow high-frequency notification polling to be controlled by its own limiter.
+  skip: (req) =>
+    req.method === "GET" ||
+    req.method === "HEAD" ||
+    req.path.startsWith("/api/v1/notifications"),
 })
-app.use(limiter)
+app.use(writeLimiter)
 
 app.get("/health", (_req, res) => res.json({ status: "ok" }))
 app.use("/api", routes)

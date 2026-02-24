@@ -11,6 +11,11 @@ Optional:
 - ACCESS_TOKEN_TTL (default: 15m)
 - REFRESH_TOKEN_TTL (default: 7d)
 - OMDB_API_KEY
+- BREVO_API_KEY
+- BREVO_SENDER_EMAIL
+- BREVO_SENDER_NAME (default: Filmly)
+- RESET_CODE_TTL_MINUTES (default: 10)
+- RESET_CODE_LENGTH (default: 6)
 
 Examples:
 - `.env.example` for local + general settings
