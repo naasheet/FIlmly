@@ -4,6 +4,7 @@ import helmet from "helmet"
 import morgan from "morgan"
 import rateLimit from "express-rate-limit"
 import routes from "./routes"
+import healthRouter from "./routes/health"
 import { errorHandler } from "./middleware/error"
 
 const app = express()
@@ -34,7 +35,7 @@ const writeLimiter = rateLimit({
 })
 app.use(writeLimiter)
 
-app.get("/health", (_req, res) => res.json({ status: "ok" }))
+app.use("/health", healthRouter)
 app.use("/api", routes)
 
 app.use((_req, res) => {

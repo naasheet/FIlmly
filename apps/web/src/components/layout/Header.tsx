@@ -27,6 +27,7 @@ export default function Header() {
   const [open, setOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [createOpen, setCreateOpen] = useState(false)
+  const [profileLoaded, setProfileLoaded] = useState(false)
   const user = useAuthStore((state) => state.user)
   const menuRef = useRef<HTMLDivElement | null>(null)
   const createRef = useRef<HTMLDivElement | null>(null)
@@ -34,6 +35,9 @@ export default function Header() {
   const clearAuth = useAuthStore((state) => state.clearAuth)
   const setUser = useAuthStore((state) => state.setUser)
   const navigate = useNavigate()
+  const userId = user?.id ?? null
+  const userAvatarUrl = user?.avatarUrl ?? null
+  const profileKey = `${userId ?? ""}:${userAvatarUrl ?? ""}`
 
   useEffect(() => {
     if (!menuOpen && !createOpen) return
@@ -51,7 +55,11 @@ export default function Header() {
   }, [menuOpen, createOpen])
 
   useEffect(() => {
-    if (!user || user.avatarUrl) return
+    setProfileLoaded(false)
+  }, [userId])
+
+  useEffect(() => {
+    if (!userId || userAvatarUrl || profileLoaded) return
     let active = true
     api
       .get("/users/me")
@@ -62,10 +70,13 @@ export default function Header() {
         }
       })
       .catch(() => {})
+      .finally(() => {
+        if (active) setProfileLoaded(true)
+      })
     return () => {
       active = false
     }
-  }, [user, setUser])
+  }, [profileKey, profileLoaded, setUser])
 
   const handleLogout = async () => {
     try {

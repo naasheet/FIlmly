@@ -1,15 +1,15 @@
 import axios, { AxiosError, type AxiosInstance } from "axios"
 import { useAuthStore } from "../stores/authStore"
 
-const baseURL = import.meta.env.VITE_API_URL ?? "http://localhost:4000"
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
 
 const api: AxiosInstance = axios.create({
-  baseURL: `${baseURL}/api/v1`,
+  baseURL: `${API_URL}/api/v1`,
   timeout: 15000,
 })
 
 const refreshClient = axios.create({
-  baseURL: `${baseURL}/api/v1`,
+  baseURL: `${API_URL}/api/v1`,
   timeout: 15000,
 })
 

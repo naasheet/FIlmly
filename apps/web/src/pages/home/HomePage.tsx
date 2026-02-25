@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Link } from "react-router-dom"
 import Header from "../../components/layout/Header"
 import FilmCard from "../../components/film/FilmCard"
@@ -28,6 +28,7 @@ export default function HomePage() {
   const [trendingPage, setTrendingPage] = useState(1)
   const [trendingTotalPages, setTrendingTotalPages] = useState(1)
   const [trendingLoading, setTrendingLoading] = useState(false)
+  const lastStatsFetchRef = useRef<{ userId: string; at: number } | null>(null)
 
   useEffect(() => {
     let active = true
@@ -108,12 +109,23 @@ export default function HomePage() {
     let active = true
 
     async function loadStats() {
-      if (!user) {
+      const userId = user?.id
+      if (!userId) {
         if (active) {
           setStats({ watched: 0, watchlist: 0, reviews: 0 })
         }
         return
       }
+
+      const now = Date.now()
+      if (
+        lastStatsFetchRef.current &&
+        lastStatsFetchRef.current.userId === userId &&
+        now - lastStatsFetchRef.current.at < 60_000
+      ) {
+        return
+      }
+      lastStatsFetchRef.current = { userId, at: now }
 
       try {
         const [watchlistRes, reviewsRes] = await Promise.all([
@@ -133,7 +145,7 @@ export default function HomePage() {
 
     loadStats()
     return () => { active = false }
-  }, [user])
+  }, [user?.id])
 
   const todayIds = useMemo(() => new Set(todayPicks.map((film) => film.id)), [todayPicks])
   const canLoadMoreTrending = trendingPage < trendingTotalPages

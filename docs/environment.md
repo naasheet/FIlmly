@@ -23,4 +23,4 @@ Examples:
 
 ## apps/web
 Required:
-- VITE_API_URL (default: http://localhost:4000)
+- VITE_API_URL (default: http://localhost:5000)
