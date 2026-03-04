@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { usePageTitle } from "../../hooks/usePageTitle"
 import { useParams, useNavigate, Link } from "react-router-dom"
 import Header from "../../components/layout/Header"
 import { getDiaryEntry } from "../../services/diaryService"
@@ -29,6 +30,7 @@ export default function DiaryEntryPage() {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
     const [entry, setEntry] = useState<DiaryEntryDetail | null>(null)
+    usePageTitle(entry?.film.title ? `Diary: ${entry.film.title}` : null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 

@@ -567,27 +567,6 @@ router.get("/:id/likes", optionalAuth, async (req, res) => {
   }
 })
 
-router.get("/:id/activity", optionalAuth, async (req, res) => {
-  try {
-    const listId = String(req.params.id)
-    const page = Math.max(1, req.query.page ? Number(req.query.page) : 1)
-    const pageSize = Math.min(50, Math.max(1, req.query.pageSize ? Number(req.query.pageSize) : 10))
-    const activities = await prisma.listActivity.findMany({
-      where: { listId },
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-      include: {
-        user: { select: { id: true, username: true, name: true, avatarUrl: true } },
-        film: { select: { id: true, title: true, posterPath: true } },
-      },
-    })
-    return res.status(200).json({ activities })
-  } catch (error: any) {
-    return res.status(400).json({ message: error.message ?? "Failed to fetch activity" })
-  }
-})
-
 router.post("/:id/contributors/invite", authenticate, inviteValidation, async (req, res) => {
   const validationError = handleValidation(req, res)
   if (validationError) return validationError

@@ -5,13 +5,11 @@ import {
     Compass,
     Bookmark,
     PenLine,
-    Activity,
     Settings,
     LogOut,
     Search,
     User,
     ChevronLeft,
-    Film
 } from "lucide-react"
 import { useAuthStore } from "../../stores/authStore"
 
@@ -20,7 +18,6 @@ const navItems = [
     { icon: Compass, label: "Discover", path: "/discover" },
     { icon: Bookmark, label: "Watchlist", path: "/watchlist" },
     { icon: PenLine, label: "Reviews", path: "/reviews" },
-    { icon: Activity, label: "Activity", path: "/activity" },
 ]
 
 export default function Sidebar() {
@@ -48,8 +45,8 @@ export default function Sidebar() {
                 {/* Logo */}
                 <div className="flex h-20 items-center px-5">
                     <Link to="/" className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/20">
-                            <Film className="h-5 w-5 text-black" />
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[rgb(14,14,18)] p-1 shadow-lg shadow-black/40">
+                            <img src="/assets/logo.png" alt="Filmly logo" className="h-full w-full object-contain" />
                         </div>
                         <span
                             className={`font-['Outfit'] text-xl font-bold text-white transition-opacity duration-200 ${expanded ? "opacity-100" : "opacity-0"

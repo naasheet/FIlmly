@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { usePageTitle } from "../../hooks/usePageTitle"
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom"
 import {
   ChevronLeft,
@@ -87,6 +88,8 @@ export default function FilmPage() {
   const uniqueOnlineCount = useMemo(() => new Set(onlineUsers.map((entry) => entry.user_id)).size, [onlineUsers])
   const displayOnlineCount = Math.max(1, uniqueOnlineCount)
   const [details, setDetails] = useState<FilmDetails | null>(null)
+  const pageYear = details?.film.releaseDate ? new Date(details.film.releaseDate).getFullYear() : null
+  usePageTitle(details?.film.title ? `${details.film.title}${pageYear ? ` (${pageYear})` : ""}` : null)
   const [rating, setRating] = useState<Rating | null>(null)
   const [userReview, setUserReview] = useState<Review | null>(null)
   const [loading, setLoading] = useState(true)
@@ -555,11 +558,10 @@ export default function FilmPage() {
                                   key={`${entry.year}-${entry.won ? "win" : "nom"}`}
                                   type="button"
                                   onClick={() => setOscarsOpen(true)}
-                                  className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${
-                                    entry.won
+                                  className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${entry.won
                                       ? "border-yellow-400/40 bg-yellow-400/10 text-yellow-200"
                                       : "border-white/10 bg-white/5 text-white/70"
-                                  }`}
+                                    }`}
                                 >
                                   🏆 {entry.won ? "Oscar Winner" : "Oscar Nominee"} {entry.year}
                                 </button>
@@ -633,8 +635,8 @@ export default function FilmPage() {
                         }}
                         disabled={Boolean(userReview)}
                         className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-all ${userReview
-                            ? "cursor-not-allowed bg-white/5 text-white/40"
-                            : "bg-white/10 text-white hover:bg-white/20"
+                          ? "cursor-not-allowed bg-white/5 text-white/40"
+                          : "bg-white/10 text-white hover:bg-white/20"
                           }`}
                       >
                         <Star className="h-4 w-4" />
@@ -740,22 +742,22 @@ export default function FilmPage() {
                   ))}
                 </div>
               </section>
-          )}
+            )}
 
-          {/* Discussion */}
-          <section className="mt-12" />
+            {/* Discussion */}
+            <section className="mt-12" />
 
-          {/* Reviews */}
-          <section className="mb-12" id="reviews">
-            <h2 className="mb-4 font-['Outfit'] text-xl font-bold text-white">Reviews</h2>
-            <ReviewList
-              filmId={filmId}
-              refreshKey={reviewRefreshKey}
-              onReviewDeleted={() => {
-                setUserReview(null)
-                setReviewRefreshKey((prev) => prev + 1)
-              }}
-            />
+            {/* Reviews */}
+            <section className="mb-12" id="reviews">
+              <h2 className="mb-4 font-['Outfit'] text-xl font-bold text-white">Reviews</h2>
+              <ReviewList
+                filmId={filmId}
+                refreshKey={reviewRefreshKey}
+                onReviewDeleted={() => {
+                  setUserReview(null)
+                  setReviewRefreshKey((prev) => prev + 1)
+                }}
+              />
             </section>
 
             {/* Appears in Lists */}
@@ -836,7 +838,7 @@ export default function FilmPage() {
               {appearsTotal > appearsInLists.length && (
                 <div className="mt-4">
                   <Link
-                      to={`/lists?filmId=${details?.film?.id ?? filmId}`}
+                    to={`/lists?filmId=${details?.film?.id ?? filmId}`}
                     className="text-sm font-semibold text-amber-200 hover:text-amber-100"
                   >
                     View all {appearsTotal} lists
@@ -863,12 +865,12 @@ export default function FilmPage() {
                 </div>
                 {similarHasMore && (
                   <div className="mt-6 flex justify-center">
-                      <button
-                        type="button"
-                        onClick={handleLoadMoreSimilar}
-                        disabled={similarLoading}
-                        className="cursor-pointer rounded-full border border-white/10 bg-white/5 px-5 py-2 text-sm font-medium text-white/80 transition hover:bg-white/10 disabled:opacity-50"
-                      >
+                    <button
+                      type="button"
+                      onClick={handleLoadMoreSimilar}
+                      disabled={similarLoading}
+                      className="cursor-pointer rounded-full border border-white/10 bg-white/5 px-5 py-2 text-sm font-medium text-white/80 transition hover:bg-white/10 disabled:opacity-50"
+                    >
                       {similarLoading ? "Loading..." : "More films"}
                     </button>
                   </div>
@@ -1024,11 +1026,10 @@ export default function FilmPage() {
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className="text-sm font-semibold text-white">{entry.category}</p>
                       <span
-                        className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${
-                          entry.won
+                        className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${entry.won
                             ? "border-yellow-400/40 bg-yellow-400/10 text-yellow-200"
                             : "border-white/10 bg-white/5 text-white/60"
-                        }`}
+                          }`}
                       >
                         {entry.won ? "Winner" : "Nominee"} · {entry.year}
                       </span>
@@ -1042,37 +1043,37 @@ export default function FilmPage() {
       )}
 
       {chatOpen && details && (
-          <div className="fixed inset-0 z-50 flex flex-col bg-[rgb(10,10,14)]">
-            <div className="flex items-center justify-between gap-4 border-b border-white/10 px-6 py-4">
-              <div className="flex items-center gap-4">
-                  <div className="h-16 w-12 overflow-hidden rounded-lg border border-white/10 bg-white/5">
-                    {posterUrl ? (
-                      <img src={posterUrl} alt={details.film.title} className="h-full w-full object-cover" />
-                    ) : null}
-                  </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
-                      Discussion
-                    </p>
-                    <h3 className="mt-1 font-['Outfit'] text-2xl font-semibold text-white">
-                      {details.film.title}
-                    </h3>
-                    <div className="mt-2 flex items-center gap-2 text-xs text-white/60">
-                      <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
-                        {displayOnlineCount} online
-                      </span>
-                    </div>
-                  </div>
+        <div className="fixed inset-0 z-50 flex flex-col bg-[rgb(10,10,14)]">
+          <div className="flex items-center justify-between gap-4 border-b border-white/10 px-6 py-4">
+            <div className="flex items-center gap-4">
+              <div className="h-16 w-12 overflow-hidden rounded-lg border border-white/10 bg-white/5">
+                {posterUrl ? (
+                  <img src={posterUrl} alt={details.film.title} className="h-full w-full object-cover" />
+                ) : null}
               </div>
-              <button
-                type="button"
-                onClick={() => setChatOpen(false)}
-                className="cursor-pointer rounded-full border border-white/10 p-2 text-white/70 transition hover:border-white/30 hover:text-white"
-                aria-label="Close discussion"
-              >
-                <X className="h-4 w-4" />
-              </button>
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                  Discussion
+                </p>
+                <h3 className="mt-1 font-['Outfit'] text-2xl font-semibold text-white">
+                  {details.film.title}
+                </h3>
+                <div className="mt-2 flex items-center gap-2 text-xs text-white/60">
+                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
+                    {displayOnlineCount} online
+                  </span>
+                </div>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={() => setChatOpen(false)}
+              className="cursor-pointer rounded-full border border-white/10 p-2 text-white/70 transition hover:border-white/30 hover:text-white"
+              aria-label="Close discussion"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
           <div className="flex-1 overflow-hidden">
             <ChatContainer filmId={details.film.id} />
           </div>

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react"
 import { Link, useNavigate, useSearchParams } from "react-router-dom"
+import { usePageTitle } from "../../hooks/usePageTitle"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Film, Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff } from "lucide-react"
 import { useAuthStore } from "../../stores/authStore"
 import { login as loginApi } from "../../services/authService"
 
@@ -15,6 +16,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
+  usePageTitle("Log In")
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const user = useAuthStore((state) => state.user)
@@ -70,8 +72,8 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="mb-8 text-center">
           <Link to="/" className="inline-flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500">
-              <Film className="h-5 w-5 text-black" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[rgb(14,14,18)] p-1">
+              <img src="/assets/logo.png" alt="Filmly logo" className="h-full w-full object-contain" />
             </div>
             <span className="font-['Outfit'] text-xl font-bold text-white">Filmly</span>
           </Link>
@@ -112,7 +114,7 @@ export default function LoginPage() {
                   Password
                 </label>
                 <Link to="/forgot-password" className="text-xs text-amber-400 hover:underline">
-                  Forgot?
+                  Forgot your password?
                 </Link>
               </div>
               <div className="relative">

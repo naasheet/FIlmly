@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { usePageTitle } from "../../hooks/usePageTitle"
 import { useNavigate, useParams } from "react-router-dom"
 import { Bookmark, Heart, Search, Trash2, UserPlus, X } from "lucide-react"
 import Header from "../../components/layout/Header"
@@ -15,7 +16,6 @@ import {
 } from "../../services/listApi"
 import type { List, ListContributor } from "../../stores/listStore"
 import WhoLikedModal from "../../components/lists/WhoLikedModal"
-import ActivityFeed from "../../components/lists/ActivityFeed"
 import ListStatisticsPanel from "../../components/lists/ListStatisticsPanel"
 import EditListModal from "../../components/lists/EditListModal"
 import { resolvePosterUrl } from "../../utils/image"
@@ -61,6 +61,7 @@ export default function ListDetailPage() {
   const authHydrated = useAuthStore((state) => state.isHydrated)
 
   const [list, setList] = useState<List | null>(null)
+  usePageTitle(list?.title ?? null)
   const [films, setFilms] = useState<NonNullable<List["films"]>>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [filmsHasMore, setFilmsHasMore] = useState(false)
@@ -464,16 +465,14 @@ export default function ListDetailPage() {
                 type="button"
                 onClick={handleLike}
                 disabled={likeBusy}
-                className={`group flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                  isLiked
+                className={`group flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${isLiked
                     ? "border-rose-400/40 bg-rose-400/10 text-rose-200"
                     : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
-                } ${likeBusy ? "cursor-not-allowed opacity-70" : ""}`}
+                  } ${likeBusy ? "cursor-not-allowed opacity-70" : ""}`}
               >
                 <Heart
-                  className={`h-4 w-4 transition-transform ${
-                    isLiked ? "fill-rose-400 text-rose-300" : ""
-                  } ${likeBusy ? "" : "group-active:scale-110"}`}
+                  className={`h-4 w-4 transition-transform ${isLiked ? "fill-rose-400 text-rose-300" : ""
+                    } ${likeBusy ? "" : "group-active:scale-110"}`}
                 />
                 <span className="text-base">{isLiked ? "Liked" : "Like"}</span>
               </button>
@@ -482,11 +481,10 @@ export default function ListDetailPage() {
                 type="button"
                 onClick={handleSave}
                 disabled={saveBusy}
-                className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                  isSaved
+                className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${isSaved
                     ? "border-amber-400/40 bg-amber-400/10 text-amber-200"
                     : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
-                } ${saveBusy ? "cursor-not-allowed opacity-70" : ""}`}
+                  } ${saveBusy ? "cursor-not-allowed opacity-70" : ""}`}
               >
                 <Bookmark
                   className={`h-4 w-4 ${isSaved ? "fill-amber-400 text-amber-300" : ""}`}
@@ -509,9 +507,8 @@ export default function ListDetailPage() {
                   type="button"
                   onClick={handleDelete}
                   disabled={deleteBusy}
-                  className={`flex items-center gap-2 rounded-full border border-rose-400/40 bg-rose-400/10 px-4 py-2 text-sm font-semibold text-rose-200 transition hover:border-rose-400/70 hover:bg-rose-400/20 ${
-                    deleteBusy ? "cursor-not-allowed opacity-70" : ""
-                  }`}
+                  className={`flex items-center gap-2 rounded-full border border-rose-400/40 bg-rose-400/10 px-4 py-2 text-sm font-semibold text-rose-200 transition hover:border-rose-400/70 hover:bg-rose-400/20 ${deleteBusy ? "cursor-not-allowed opacity-70" : ""
+                    }`}
                 >
                   <Trash2 className="h-4 w-4" />
                   {deleteBusy ? "Deleting..." : "Delete"}
@@ -697,11 +694,10 @@ export default function ListDetailPage() {
                                   type="button"
                                   onClick={() => handleInvite(candidate)}
                                   disabled={inviteBusyId === candidate.id}
-                                  className={`rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-200 transition hover:border-amber-400/70 hover:bg-amber-400/20 ${
-                                    inviteBusyId === candidate.id
+                                  className={`rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-200 transition hover:border-amber-400/70 hover:bg-amber-400/20 ${inviteBusyId === candidate.id
                                       ? "cursor-not-allowed opacity-70"
                                       : ""
-                                  }`}
+                                    }`}
                                 >
                                   {inviteBusyId === candidate.id ? "Inviting..." : "Invite"}
                                 </button>
@@ -751,9 +747,8 @@ export default function ListDetailPage() {
                               type="button"
                               onClick={() => handleRemoveContributor(contributor)}
                               disabled={removeBusyId === contributor.id}
-                              className={`flex items-center gap-1 rounded-full border border-rose-400/40 bg-rose-400/10 px-3 py-1 text-xs font-semibold text-rose-200 transition hover:border-rose-400/70 hover:bg-rose-400/20 ${
-                                removeBusyId === contributor.id ? "cursor-not-allowed opacity-70" : ""
-                              }`}
+                              className={`flex items-center gap-1 rounded-full border border-rose-400/40 bg-rose-400/10 px-3 py-1 text-xs font-semibold text-rose-200 transition hover:border-rose-400/70 hover:bg-rose-400/20 ${removeBusyId === contributor.id ? "cursor-not-allowed opacity-70" : ""
+                                }`}
                             >
                               <X className="h-3 w-3" />
                               {removeBusyId === contributor.id ? "Removing..." : "Remove"}
@@ -844,7 +839,6 @@ export default function ListDetailPage() {
                   </div>
                 )}
 
-                <ActivityFeed listId={list.id} />
               </aside>
             </section>
           </div>

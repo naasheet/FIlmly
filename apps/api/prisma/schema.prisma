@@ -30,13 +30,11 @@ model User {
   reviewLikes       ReviewLike[]
   ratings           Rating[]
   watchlists        Watchlist[]
-  activities        Activity[]
   reviewComments    ReviewComment[]
   reviewReports     ReviewReport[]
   watched           Watched[]
   following         Follow[]          @relation("UserFollowing")
   followers         Follow[]          @relation("UserFollowers")
-  comments          Comment[]
   diaryEntries      DiaryEntry[]
   lists             List[]
   listFilms         ListFilm[]
@@ -101,7 +99,6 @@ model Film {
   reviews        Review[]
   ratings        Rating[]
   watchlistItems WatchlistItem[]
-  activities     Activity[]
   credits        FilmCredit[]
   watched        Watched[]
   diaryEntries   DiaryEntry[]
@@ -198,7 +195,6 @@ model Review {
   film             Film            @relation(fields: [filmId], references: [id], onDelete: Cascade)
   versions         ReviewVersion[]
   likes            ReviewLike[]
-  activities       Activity[]
   comments         ReviewComment[]
   reports          ReviewReport[]
   notifications    Notification[]
@@ -221,24 +217,6 @@ model ReviewLike {
   @@index([userId])
 }
 
-model Activity {
-  id        String    @id @default(cuid())
-  type      String
-  userId    String
-  reviewId  String?
-  filmId    Int?
-  metadata  Json?
-  createdAt DateTime  @default(now())
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  review    Review?   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
-  film      Film?     @relation(fields: [filmId], references: [id], onDelete: Cascade)
-  comments  Comment[]
-
-  @@index([userId])
-  @@index([reviewId])
-  @@index([filmId])
-  @@index([type])
-}
 
 model Rating {
   id        String   @id @default(cuid())
@@ -355,23 +333,6 @@ model ReviewReport {
   @@index([reporterId])
 }
 
-model Comment {
-  id         String    @id @default(cuid())
-  activityId String
-  userId     String
-  parentId   String?
-  content    String
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  activity   Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parent     Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies    Comment[] @relation("CommentReplies")
-
-  @@index([activityId])
-  @@index([userId])
-  @@index([parentId])
-}
 
 model DiaryEntry {
   id          String   @id @default(cuid())

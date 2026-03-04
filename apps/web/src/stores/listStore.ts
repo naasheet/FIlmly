@@ -40,26 +40,6 @@ export type ListContributor = {
   user?: ListUser
 }
 
-export type ListActivity = {
-  id: string
-  listId: string
-  userId: string
-  activityType:
-    | "LIST_CREATED"
-    | "FILM_ADDED"
-    | "FILM_REMOVED"
-    | "FILM_REORDERED"
-    | "TITLE_UPDATED"
-    | "DESCRIPTION_UPDATED"
-    | "CONTRIBUTOR_ADDED"
-    | "CONTRIBUTOR_REMOVED"
-    | "LIST_PUBLISHED"
-  filmId?: number | null
-  metadata?: Record<string, unknown> | null
-  createdAt: string
-  user?: ListUser
-}
-
 export type List = {
   id: string
   slug: string
@@ -86,7 +66,6 @@ export type List = {
   user?: ListUser
   films?: ListFilm[]
   contributors?: ListContributor[]
-  activities?: ListActivity[]
   isLiked?: boolean
   isSaved?: boolean
   canEdit?: boolean

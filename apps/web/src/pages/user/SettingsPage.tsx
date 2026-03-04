@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { ArrowLeft } from "lucide-react"
+import { usePageTitle } from "../../hooks/usePageTitle"
 import Header from "../../components/layout/Header"
 import api, { normalizeApiError } from "../../services/api"
 import { useAuthStore } from "../../stores/authStore"
@@ -12,12 +13,8 @@ type ProfileForm = {
   website: string
 }
 
-type PrivacySettings = {
-  privateProfile: boolean
-  hideReviews: boolean
-}
-
 export default function SettingsPage() {
+  usePageTitle("Settings")
   const authUser = useAuthStore((state) => state.user)
   const setAuth = useAuthStore((state) => state.setAuth)
   const accessToken = useAuthStore((state) => state.accessToken)
@@ -29,10 +26,6 @@ export default function SettingsPage() {
     bio: "",
     location: "",
     website: "",
-  })
-  const [privacy, setPrivacy] = useState<PrivacySettings>({
-    privateProfile: false,
-    hideReviews: false,
   })
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(true)
@@ -55,10 +48,6 @@ export default function SettingsPage() {
           bio: res.data?.bio ?? "",
           location: res.data?.location ?? "",
           website: res.data?.website ?? "",
-        })
-        setPrivacy({
-          privateProfile: Boolean(res.data?.privateProfile),
-          hideReviews: Boolean(res.data?.hideReviews),
         })
       } catch (err) {
         if (!active) return
@@ -85,8 +74,6 @@ export default function SettingsPage() {
         bio: form.bio,
         location: form.location,
         website: form.website,
-        privateProfile: privacy.privateProfile,
-        hideReviews: privacy.hideReviews,
       })
 
       if (avatarFile) {
@@ -227,45 +214,6 @@ export default function SettingsPage() {
               className="mt-4 w-full text-base text-slate-300 file:mr-4 file:rounded-xl file:border-0 file:bg-indigo-500/20 file:px-4 file:py-2 file:text-base file:font-semibold file:text-indigo-200 hover:file:bg-indigo-500/30"
             />
           </div>
-        </section>
-
-        <section className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6">
-          <h2 className="text-xl font-semibold text-white">Privacy</h2>
-          <div className="mt-4 grid gap-4">
-            <label className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-base text-slate-200">
-              Private profile
-              <span className="relative inline-flex items-center">
-                <input
-                  type="checkbox"
-                  checked={privacy.privateProfile}
-                  onChange={(event) =>
-                    setPrivacy((prev) => ({ ...prev, privateProfile: event.target.checked }))
-                  }
-                  className="peer sr-only"
-                />
-                <span className="h-6 w-11 rounded-full border border-white/10 bg-white/10 transition peer-checked:bg-indigo-500/70" />
-                <span className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5" />
-              </span>
-            </label>
-            <label className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-base text-slate-200">
-              Hide reviews from public
-              <span className="relative inline-flex items-center">
-                <input
-                  type="checkbox"
-                  checked={privacy.hideReviews}
-                  onChange={(event) =>
-                    setPrivacy((prev) => ({ ...prev, hideReviews: event.target.checked }))
-                  }
-                  className="peer sr-only"
-                />
-                <span className="h-6 w-11 rounded-full border border-white/10 bg-white/10 transition peer-checked:bg-indigo-500/70" />
-                <span className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5" />
-              </span>
-            </label>
-          </div>
-          <p className="mt-3 text-sm text-slate-400">
-            Privacy settings are UI-only for now. Tell me when you want them saved.
-          </p>
         </section>
 
         <div className="mt-8 flex justify-end">

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "react-router-dom"
+import { usePageTitle } from "../../hooks/usePageTitle"
 import Header from "../../components/layout/Header"
 import ListGrid from "../../components/lists/ListGrid"
 import CreateListModal from "../../components/lists/CreateListModal"
@@ -9,6 +10,7 @@ import type { List } from "../../stores/listStore"
 type TabKey = "created" | "collaborating" | "liked" | "saved"
 
 export default function MyListsPage() {
+  usePageTitle("My Lists")
   const [activeTab, setActiveTab] = useState<TabKey>("created")
   const [created, setCreated] = useState<List[]>([])
   const [collaborating, setCollaborating] = useState<List[]>([])
@@ -193,28 +195,27 @@ export default function MyListsPage() {
             <h1 className="font-['Outfit'] text-3xl font-semibold text-white">My Lists</h1>
             <p className="mt-1 text-sm text-white/60">Manage everything you’ve curated.</p>
           </div>
-            <div className="flex flex-wrap items-center gap-3">
-              {activeTab === "created" && (
-                <button
-                  type="button"
-                  onClick={toggleSelectMode}
-                  className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                    selectMode
-                      ? "border-white/30 bg-white/10 text-white"
-                      : "border-white/10 bg-white/5 text-white/70 hover:border-white/30"
-                  }`}
-                >
-                  {selectMode ? "Cancel" : "Select"}
-                </button>
-              )}
+          <div className="flex flex-wrap items-center gap-3">
+            {activeTab === "created" && (
               <button
                 type="button"
-                onClick={() => setCreateOpen(true)}
-                className="rounded-full border border-amber-400/50 bg-amber-400/20 px-5 py-2 text-sm font-semibold text-amber-200 transition hover:border-amber-400/80 hover:bg-amber-400/30"
+                onClick={toggleSelectMode}
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${selectMode
+                  ? "border-white/30 bg-white/10 text-white"
+                  : "border-white/10 bg-white/5 text-white/70 hover:border-white/30"
+                  }`}
               >
-                Create List
+                {selectMode ? "Cancel" : "Select"}
               </button>
-            </div>
+            )}
+            <button
+              type="button"
+              onClick={() => setCreateOpen(true)}
+              className="rounded-full border border-amber-400/50 bg-amber-400/20 px-5 py-2 text-sm font-semibold text-amber-200 transition hover:border-amber-400/80 hover:bg-amber-400/30"
+            >
+              Create List
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-4 border-b border-white/10 pb-3 text-sm">
@@ -228,42 +229,41 @@ export default function MyListsPage() {
               key={tab.key}
               type="button"
               onClick={() => setActiveTab(tab.key as TabKey)}
-              className={`-mb-px border-b-2 pb-2 text-sm font-semibold transition ${
-                activeTab === tab.key
-                  ? "border-amber-400 text-amber-200"
-                  : "border-transparent text-white/50 hover:text-white"
-              }`}
+              className={`-mb-px border-b-2 pb-2 text-sm font-semibold transition ${activeTab === tab.key
+                ? "border-amber-400 text-amber-200"
+                : "border-transparent text-white/50 hover:text-white"
+                }`}
             >
               {tab.label}
             </button>
           ))}
         </div>
 
-          <div className="mt-6">
-            {loading && (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {Array.from({ length: 8 }).map((_, index) => (
-                  <div
-                    key={index}
-                    className="h-64 animate-pulse rounded-2xl border border-white/10 bg-white/5"
-                  />
-                ))}
-              </div>
-            )}
+        <div className="mt-6">
+          {loading && (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="h-64 animate-pulse rounded-2xl border border-white/10 bg-white/5"
+                />
+              ))}
+            </div>
+          )}
           {!loading && error && (
             <div className="rounded-2xl border border-rose-400/30 bg-rose-400/10 p-6 text-rose-200">
               {error}
             </div>
           )}
-            {!loading && !error && (
-              <ListGrid
-                lists={lists}
-                onCreate={() => setCreateOpen(true)}
-                selectable={selectMode && activeTab === "created"}
-                selectedIds={selectedIds}
-                onToggleSelect={toggleSelected}
-              />
-            )}
+          {!loading && !error && (
+            <ListGrid
+              lists={lists}
+              onCreate={() => setCreateOpen(true)}
+              selectable={selectMode && activeTab === "created"}
+              selectedIds={selectedIds}
+              onToggleSelect={toggleSelected}
+            />
+          )}
         </div>
       </main>
 

@@ -45,30 +45,6 @@ function buildOrderBy(sortBy: SortBy) {
   }
 }
 
-async function createActivity({
-  type,
-  userId,
-  filmId,
-  reviewId,
-  metadata,
-}: {
-  type: string
-  userId: string
-  filmId?: number
-  reviewId?: string
-  metadata?: Record<string, unknown>
-}) {
-  return prisma.activity.create({
-    data: {
-      type,
-      userId,
-      filmId,
-      reviewId,
-      metadata: metadata as Prisma.InputJsonValue | undefined,
-    },
-  })
-}
-
 async function createReviewVersion(
   reviewId: string,
   rating: number,
@@ -118,13 +94,6 @@ export async function createReview(data: CreateReviewInput) {
     review.rewatch,
     review.watchedDate
   )
-  await createActivity({
-    type: "review_created",
-    userId: data.userId,
-    filmId: data.filmId,
-    reviewId: review.id,
-  })
-
   return prisma.review.findUnique({
     where: { id: review.id },
     include: { versions: { orderBy: { createdAt: "desc" } }, likes: true },
@@ -161,13 +130,6 @@ export async function updateReview(id: string, data: UpdateReviewInput) {
     updated.rewatch,
     updated.watchedDate
   )
-  await createActivity({
-    type: "review_updated",
-    userId: updated.userId,
-    filmId: updated.filmId,
-    reviewId: updated.id,
-  })
-
   return prisma.review.findUnique({
     where: { id: updated.id },
     include: { versions: { orderBy: { createdAt: "desc" } }, likes: true },
@@ -184,12 +146,6 @@ export async function deleteReview(id: string, userId: string) {
   }
 
   await prisma.review.delete({ where: { id } })
-  await createActivity({
-    type: "review_deleted",
-    userId,
-    filmId: existing.filmId,
-  })
-
   return { success: true }
 }
 
@@ -337,11 +293,6 @@ export async function toggleLike(reviewId: string, userId: string) {
       type: NotificationType.REVIEW_LIKED,
       reviewId,
     })
-    await createActivity({
-      type: "review_unliked",
-      userId,
-      reviewId,
-    })
     return { liked: false }
   }
 
@@ -356,11 +307,6 @@ export async function toggleLike(reviewId: string, userId: string) {
     actorId: userId,
     type: NotificationType.REVIEW_LIKED,
     reviewId: review.id,
-  })
-  await createActivity({
-    type: "review_liked",
-    userId,
-    reviewId,
   })
   return { liked: true }
 }

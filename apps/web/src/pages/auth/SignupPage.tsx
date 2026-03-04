@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import { usePageTitle } from "../../hooks/usePageTitle"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Film, Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff } from "lucide-react"
 import { useAuthStore } from "../../stores/authStore"
 import { register as registerApi } from "../../services/authService"
 
@@ -17,6 +18,7 @@ const signupSchema = z.object({
 type SignupFormData = z.infer<typeof signupSchema>
 
 export default function SignupPage() {
+  usePageTitle("Sign Up")
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const setAuth = useAuthStore((state) => state.setAuth)
@@ -62,8 +64,8 @@ export default function SignupPage() {
         {/* Logo */}
         <div className="mb-8 text-center">
           <Link to="/" className="inline-flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500">
-              <Film className="h-5 w-5 text-black" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[rgb(14,14,18)] p-1">
+              <img src="/assets/logo.png" alt="Filmly logo" className="h-full w-full object-contain" />
             </div>
             <span className="font-['Outfit'] text-xl font-bold text-white">Filmly</span>
           </Link>

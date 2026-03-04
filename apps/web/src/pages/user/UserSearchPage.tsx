@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
+import { usePageTitle } from "../../hooks/usePageTitle"
 import Header from "../../components/layout/Header"
 import api, { normalizeApiError } from "../../services/api"
 
@@ -11,6 +12,7 @@ type UserResult = {
 }
 
 export default function UserSearchPage() {
+  usePageTitle("Find People")
   const [query, setQuery] = useState("")
   const [results, setResults] = useState<UserResult[]>([])
   const [loading, setLoading] = useState(false)

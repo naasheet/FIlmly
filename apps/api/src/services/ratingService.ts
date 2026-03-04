@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client"
+import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
@@ -12,27 +12,6 @@ type UpdateRatingInput = {
   rating: number
 }
 
-async function createActivity({
-  type,
-  userId,
-  filmId,
-  metadata,
-}: {
-  type: string
-  userId: string
-  filmId?: number
-  metadata?: Record<string, unknown>
-}) {
-  return prisma.activity.create({
-    data: {
-      type,
-      userId,
-      filmId,
-      metadata: metadata as Prisma.InputJsonValue | undefined,
-    },
-  })
-}
-
 export async function addRating(data: AddRatingInput) {
   try {
     const rating = await prisma.rating.create({
@@ -41,11 +20,6 @@ export async function addRating(data: AddRatingInput) {
         filmId: data.filmId,
         rating: Number(data.rating),
       },
-    })
-    await createActivity({
-      type: "rating_created",
-      userId: data.userId,
-      filmId: data.filmId,
     })
     return rating
   } catch (error: any) {
@@ -69,11 +43,6 @@ export async function updateRating(id: string, userId: string, data: UpdateRatin
     where: { id },
     data: { rating: Number(data.rating) },
   })
-  await createActivity({
-    type: "rating_updated",
-    userId,
-    filmId: rating.filmId,
-  })
   return rating
 }
 
@@ -87,11 +56,6 @@ export async function deleteRating(id: string, userId: string) {
   }
 
   await prisma.rating.delete({ where: { id } })
-  await createActivity({
-    type: "rating_deleted",
-    userId,
-    filmId: existing.filmId,
-  })
   return { success: true }
 }
 

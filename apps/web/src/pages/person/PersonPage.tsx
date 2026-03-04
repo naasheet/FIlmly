@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { usePageTitle } from "../../hooks/usePageTitle"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import {
   Calendar,
@@ -14,6 +15,7 @@ export default function PersonPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [person, setPerson] = useState<Person | null>(null)
+  usePageTitle(person?.name ?? null)
   const [credits, setCredits] = useState<PersonCredits | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -25,7 +27,7 @@ export default function PersonPage() {
   useEffect(() => {
     const idle = (cb: () => void) => {
       if ("requestIdleCallback" in window) {
-        ;(window as any).requestIdleCallback(cb)
+        ; (window as any).requestIdleCallback(cb)
       } else {
         setTimeout(cb, 0)
       }
@@ -112,9 +114,8 @@ export default function PersonPage() {
     ? Math.max(0, Math.floor((Date.now() - birthday.getTime()) / (365.25 * 24 * 60 * 60 * 1000)))
     : null
   const birthLabel = birthday
-    ? `${birthday.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}${
-        age !== null ? ` (${age})` : ""
-      }`
+    ? `${birthday.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}${age !== null ? ` (${age})` : ""
+    }`
     : null
   const profileUrl = person.profilePath
     ? `https://image.tmdb.org/t/p/w300${person.profilePath}`
@@ -247,11 +248,10 @@ export default function PersonPage() {
                   <button
                     type="button"
                     onClick={() => setActiveTab("acting")}
-                    className={`-mb-px border-b-2 pb-2 text-sm font-semibold transition ${
-                      activeTab === "acting"
+                    className={`-mb-px border-b-2 pb-2 text-sm font-semibold transition ${activeTab === "acting"
                         ? "border-indigo-400 text-indigo-200"
                         : "border-transparent text-slate-400 hover:text-slate-200"
-                    }`}
+                      }`}
                   >
                     Acting ({credits.acting.length})
                   </button>
@@ -260,11 +260,10 @@ export default function PersonPage() {
                   <button
                     type="button"
                     onClick={() => setActiveTab("directing")}
-                    className={`-mb-px border-b-2 pb-2 text-sm font-semibold transition ${
-                      activeTab === "directing"
+                    className={`-mb-px border-b-2 pb-2 text-sm font-semibold transition ${activeTab === "directing"
                         ? "border-indigo-400 text-indigo-200"
                         : "border-transparent text-slate-400 hover:text-slate-200"
-                    }`}
+                      }`}
                   >
                     Directing ({credits.directing.length})
                   </button>
@@ -273,11 +272,10 @@ export default function PersonPage() {
                   <button
                     type="button"
                     onClick={() => setActiveTab("writing")}
-                    className={`-mb-px border-b-2 pb-2 text-sm font-semibold transition ${
-                      activeTab === "writing"
+                    className={`-mb-px border-b-2 pb-2 text-sm font-semibold transition ${activeTab === "writing"
                         ? "border-indigo-400 text-indigo-200"
                         : "border-transparent text-slate-400 hover:text-slate-200"
-                    }`}
+                      }`}
                   >
                     Writing ({credits.writing.length})
                   </button>
@@ -289,8 +287,8 @@ export default function PersonPage() {
               {(activeTab === "acting"
                 ? credits.acting
                 : activeTab === "directing"
-                ? credits.directing
-                : credits.writing
+                  ? credits.directing
+                  : credits.writing
               ).map((credit) => {
                 const year = credit.release_date
                   ? new Date(credit.release_date).getFullYear()
@@ -299,8 +297,8 @@ export default function PersonPage() {
                   ? `https://image.tmdb.org/t/p/w342${credit.poster_path}`
                   : null
                 return (
-                    <Link
-                      key={`${credit.id}-${credit.title}`}
+                  <Link
+                    key={`${credit.id}-${credit.title}`}
                     to={`/films/${credit.id}`}
                     className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-950/40 transition hover:scale-[1.02] hover:border-white/30 hover:ring-2 hover:ring-white/20"
                   >

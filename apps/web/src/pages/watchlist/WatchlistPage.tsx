@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
+import { usePageTitle } from "../../hooks/usePageTitle"
 import Header from "../../components/layout/Header"
 import FilmCard from "../../components/film/FilmCard"
 import api, { normalizeApiError } from "../../services/api"
 import { Bookmark } from "lucide-react"
 
 export default function WatchlistPage() {
+  usePageTitle("Watchlist")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [items, setItems] = useState<any[]>([])

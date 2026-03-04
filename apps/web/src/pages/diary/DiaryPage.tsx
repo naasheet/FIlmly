@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { useParams, useSearchParams, useNavigate, useLocation, Link } from "react-router-dom"
+import { usePageTitle } from "../../hooks/usePageTitle"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import {
     Calendar,
@@ -39,6 +40,7 @@ const MONTHS = [
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function DiaryPage() {
+    usePageTitle("Diary")
     const { username } = useParams<{ username: string }>()
     const [searchParams, setSearchParams] = useSearchParams()
     const { user, accessToken } = useAuthStore()
@@ -344,9 +346,8 @@ export default function DiaryPage() {
                 {/* Stats Bar */}
                 {statsData && (
                     <div
-                        className={`mb-6 grid grid-cols-2 gap-3 rounded-2xl border border-white/5 bg-white/[0.02] p-4 sm:grid-cols-${
-                            Object.keys(statsData.formatDistribution).length > 0 ? "4" : "3"
-                        }`}
+                        className={`mb-6 grid grid-cols-2 gap-3 rounded-2xl border border-white/5 bg-white/[0.02] p-4 sm:grid-cols-${Object.keys(statsData.formatDistribution).length > 0 ? "4" : "3"
+                            }`}
                     >
                         <div>
                             <p className="text-xs font-medium uppercase tracking-wider text-white/40">
@@ -447,11 +448,10 @@ export default function DiaryPage() {
                                                     page: 1,
                                                 })
                                             }
-                                            className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
-                                                filters.sortBy === option.id
-                                                    ? "border-amber-400/40 bg-amber-400/10 text-amber-200"
-                                                    : "border-white/10 bg-white/5 text-white/50 hover:bg-white/10"
-                                            }`}
+                                            className={`rounded-full border px-3 py-1 text-xs font-medium transition ${filters.sortBy === option.id
+                                                ? "border-amber-400/40 bg-amber-400/10 text-amber-200"
+                                                : "border-white/10 bg-white/5 text-white/50 hover:bg-white/10"
+                                                }`}
                                         >
                                             {option.label}
                                         </button>

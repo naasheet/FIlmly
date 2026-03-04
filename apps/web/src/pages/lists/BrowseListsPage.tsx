@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { useSearchParams } from "react-router-dom"
+import { usePageTitle } from "../../hooks/usePageTitle"
 import { ChevronDown, Filter, Search, X } from "lucide-react"
 import Header from "../../components/layout/Header"
 import ListGrid from "../../components/lists/ListGrid"
@@ -31,6 +32,7 @@ function activeFilterCount(filters: Filters) {
 }
 
 export default function BrowseListsPage() {
+  usePageTitle("Browse Lists")
   const [searchParams, setSearchParams] = useSearchParams()
   const [lists, setLists] = useState<List[]>([])
   const [loading, setLoading] = useState(true)
@@ -240,9 +242,8 @@ export default function BrowseListsPage() {
             </button>
 
             <div
-              className={`rounded-2xl border border-white/10 bg-white/[0.02] p-4 ${
-                showFilters ? "block" : "hidden lg:block"
-              } sticky top-24 transition`}
+              className={`rounded-2xl border border-white/10 bg-white/[0.02] p-4 ${showFilters ? "block" : "hidden lg:block"
+                } sticky top-24 transition`}
             >
               <div className="mb-4 flex items-center justify-between">
                 <p className="text-sm font-semibold text-white">Filters</p>
@@ -404,11 +405,10 @@ export default function BrowseListsPage() {
                             }))
                             setPage(1)
                           }}
-                          className={`rounded-full border px-2 py-0.5 text-xs transition ${
-                            selected
-                              ? "border-amber-400/60 bg-amber-400/20 text-amber-100"
-                              : "border-white/10 bg-white/5 text-white/60 hover:border-white/20"
-                          }`}
+                          className={`rounded-full border px-2 py-0.5 text-xs transition ${selected
+                            ? "border-amber-400/60 bg-amber-400/20 text-amber-100"
+                            : "border-white/10 bg-white/5 text-white/60 hover:border-white/20"
+                            }`}
                         >
                           {tag}
                         </button>

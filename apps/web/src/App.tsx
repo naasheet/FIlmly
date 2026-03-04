@@ -14,7 +14,6 @@ const SettingsPage = lazy(() => import("./pages/user/SettingsPage"))
 const UserSearchPage = lazy(() => import("./pages/user/UserSearchPage"))
 const WatchlistPage = lazy(() => import("./pages/watchlist/WatchlistPage"))
 const ReviewsPage = lazy(() => import("./pages/reviews/ReviewsPage"))
-const ActivityFeedPage = lazy(() => import("./pages/activity/ActivityFeedPage"))
 const DiaryPage = lazy(() => import("./pages/diary/DiaryPage"))
 const DiaryEntryPage = lazy(() => import("./pages/diary/DiaryEntryPage"))
 const ListDetailPage = lazy(() => import("./pages/lists/ListDetailPage"))
@@ -84,14 +83,6 @@ export default function App() {
         element={
           <Suspense fallback={<PageLoader />}>
             <UserSearchPage />
-          </Suspense>
-        }
-      />
-      <Route
-        path="/activity"
-        element={
-          <Suspense fallback={<PageLoader />}>
-            <ActivityFeedPage />
           </Suspense>
         }
       />

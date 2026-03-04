@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client"
+import { PrismaClient } from "@prisma/client"
 import { cacheFilm } from "./filmService"
 import { getFilmDetails as tmdbGetFilmDetails } from "./tmdbService"
 
@@ -65,26 +65,6 @@ async function ensureFilmCached(filmId: number) {
     }
 }
 
-async function createActivity({
-    type,
-    userId,
-    filmId,
-    metadata,
-}: {
-    type: string
-    userId: string
-    filmId?: number
-    metadata?: Record<string, unknown>
-}) {
-    return prisma.activity.create({
-        data: {
-            type,
-            userId,
-            filmId,
-            metadata: metadata as Prisma.InputJsonValue | undefined,
-        },
-    })
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CRUD Operations
@@ -110,13 +90,6 @@ export async function createEntry(data: CreateDiaryEntryInput) {
             linkToReview: data.linkToReview ?? false,
         },
         include: { film: true },
-    })
-
-    await createActivity({
-        type: "diary_entry_created",
-        userId: data.userId,
-        filmId: data.filmId,
-        metadata: { diaryEntryId: entry.id, mood: entry.mood },
     })
 
     return entry
@@ -159,13 +132,6 @@ export async function updateEntry(
         include: { film: true },
     })
 
-    await createActivity({
-        type: "diary_entry_updated",
-        userId,
-        filmId: updated.filmId,
-        metadata: { diaryEntryId: updated.id },
-    })
-
     return updated
 }
 
@@ -179,12 +145,6 @@ export async function deleteEntry(id: string, userId: string) {
     }
 
     await prisma.diaryEntry.delete({ where: { id } })
-
-    await createActivity({
-        type: "diary_entry_deleted",
-        userId,
-        filmId: existing.filmId,
-    })
 
     return { success: true }
 }

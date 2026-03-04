@@ -185,13 +185,6 @@ export async function getUsersWhoLiked(listId: string, page = 1, pageSize = 20) 
   return response.data
 }
 
-export async function getListActivities(listId: string, page = 1, pageSize = 10) {
-  const response = await api.get<{ activities: any[] }>(`/lists/${listId}/activity`, {
-    params: { page, pageSize },
-  })
-  return response.data
-}
-
 export async function searchUsers(query: string) {
   const response = await api.get<{ results: UserSearchResult[] }>("/users/search", {
     params: { query },

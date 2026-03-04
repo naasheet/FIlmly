@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Link } from "react-router-dom"
+import { usePageTitle } from "../../hooks/usePageTitle"
 import Header from "../../components/layout/Header"
 import FilmCard from "../../components/film/FilmCard"
 import HeroSpotlight from "../../components/home/HeroSpotlight"
@@ -19,6 +19,7 @@ type Film = {
 }
 
 export default function HomePage() {
+  usePageTitle()
   const user = useAuthStore((state) => state.user)
   const [spotlightFilms, setSpotlightFilms] = useState<Film[]>([])
   const [trending, setTrending] = useState<Film[]>([])
@@ -28,6 +29,7 @@ export default function HomePage() {
   const [trendingPage, setTrendingPage] = useState(1)
   const [trendingTotalPages, setTrendingTotalPages] = useState(1)
   const [trendingLoading, setTrendingLoading] = useState(false)
+  const [moreVisibleCount, setMoreVisibleCount] = useState(4)
   const lastStatsFetchRef = useRef<{ userId: string; at: number } | null>(null)
 
   useEffect(() => {
@@ -42,27 +44,55 @@ export default function HomePage() {
         ])
         if (!active) return
 
-        const seenIds = new Set<number>()
+        const mapFilm = (item: any) => ({
+          id: item.id,
+          title: item.title,
+          releaseDate: item.release_date ?? null,
+          posterPath: item.poster_path ?? null,
+          backdropPath: item.backdrop_path ?? null,
+          rating: item.vote_average ?? null,
+          overview: item.overview ?? null,
+        })
+
+        const trendingData = trendingResult.status === "fulfilled" ? trendingResult.value : null
+        const todayData = todayResult.status === "fulfilled" ? todayResult.value : null
+
+        const todayCandidates = (todayData?.results ?? [])
+          .filter((item: any) => Boolean(item.poster_path))
+          .map(mapFilm)
+
+        const trendingCandidates = (trendingData?.results ?? [])
+          .filter((item: any) => Boolean(item.poster_path))
+          .map(mapFilm)
+
+        const todaySelection: Film[] = []
+        const usedIds = new Set<number>()
+
+        todayCandidates.forEach((film) => {
+          if (todaySelection.length >= 4) return
+          if (usedIds.has(film.id)) return
+          usedIds.add(film.id)
+          todaySelection.push(film)
+        })
+
+        if (todaySelection.length < 4) {
+          trendingCandidates.forEach((film) => {
+            if (todaySelection.length >= 4) return
+            if (usedIds.has(film.id)) return
+            usedIds.add(film.id)
+            todaySelection.push(film)
+          })
+        }
+
+        if (todayResult.status === "rejected") {
+          console.error("Failed to load today's picks:", todayResult.reason)
+        }
+        setTodayPicks(todaySelection)
 
         if (trendingResult.status === "fulfilled") {
-          const trendingData = trendingResult.value
-          const trendingResults = (trendingData?.results ?? [])
-            .filter((item: any) => Boolean(item.poster_path))
-            .filter((item: any) => {
-              if (seenIds.has(item.id)) return false
-              seenIds.add(item.id)
-              return true
-            })
+          const trendingResults = trendingCandidates
+            .filter((film) => !usedIds.has(film.id))
             .slice(0, 12)
-            .map((item: any) => ({
-              id: item.id,
-              title: item.title,
-              releaseDate: item.release_date ?? null,
-              posterPath: item.poster_path ?? null,
-              backdropPath: item.backdrop_path ?? null,
-              rating: item.vote_average ?? null,
-              overview: item.overview ?? null,
-            }))
 
           setTrending(trendingResults)
           setSpotlightFilms(trendingResults.slice(0, 7))
@@ -70,29 +100,6 @@ export default function HomePage() {
           setTrendingTotalPages(trendingData?.total_pages ?? 1)
         } else {
           console.error("Failed to load trending films:", trendingResult.reason)
-        }
-
-        if (todayResult.status === "fulfilled") {
-          const todayData = todayResult.value
-          const todayResults = (todayData?.results ?? [])
-            .filter((item: any) => Boolean(item.poster_path) && !seenIds.has(item.id))
-            .filter((item: any) => {
-              if (seenIds.has(item.id)) return false
-              seenIds.add(item.id)
-              return true
-            })
-            .slice(0, 8)
-            .map((item: any) => ({
-              id: item.id,
-              title: item.title,
-              releaseDate: item.release_date ?? null,
-              posterPath: item.poster_path ?? null,
-              rating: item.vote_average ?? null,
-            }))
-
-          setTodayPicks(todayResults)
-        } else {
-          console.error("Failed to load today's picks:", todayResult.reason)
         }
       } catch (error) {
         console.error("Failed to load homepage:", error)
@@ -147,35 +154,62 @@ export default function HomePage() {
     return () => { active = false }
   }, [user?.id])
 
-  const todayIds = useMemo(() => new Set(todayPicks.map((film) => film.id)), [todayPicks])
+  const todaySlots = 4
+  const todayPicksForDisplay = useMemo(() => todayPicks.slice(0, todaySlots), [todayPicks])
+  const todayIds = useMemo(() => new Set(todayPicksForDisplay.map((film) => film.id)), [todayPicksForDisplay])
+  const moreToExplore = useMemo(
+    () => trending.slice(9).filter((film) => !todayIds.has(film.id)),
+    [trending, todayIds]
+  )
   const canLoadMoreTrending = trendingPage < trendingTotalPages
 
-  const handleLoadMoreTrending = async () => {
+  const handleLoadMoreTrending = async (targetCount = moreVisibleCount + 8) => {
     if (trendingLoading || !canLoadMoreTrending) return
     setTrendingLoading(true)
     try {
-      const nextPage = trendingPage + 1
-      const res = await getTrendingFilms("week", nextPage)
+      let nextPage = trendingPage
+      let totalPages = trendingTotalPages
+      let updatedTrending = [...trending]
       const existingIds = new Set([
-        ...trending.map((film) => film.id),
+        ...updatedTrending.map((film) => film.id),
         ...todayPicks.map((film) => film.id),
       ])
-      const nextItems = (res?.results ?? [])
-        .filter((item: any) => Boolean(item.poster_path))
-        .filter((item: any) => !existingIds.has(item.id))
-        .map((item: any) => ({
-          id: item.id,
-          title: item.title,
-          releaseDate: item.release_date ?? null,
-          posterPath: item.poster_path ?? null,
-          backdropPath: item.backdrop_path ?? null,
-          rating: item.vote_average ?? null,
-          overview: item.overview ?? null,
-        }))
 
-      setTrending((prev) => [...prev, ...nextItems])
+      const computeMoreCount = (items: Film[]) =>
+        items.slice(9).filter((film) => !todayIds.has(film.id)).length
+
+      let safety = 0
+      while (nextPage < totalPages && safety < 5) {
+        nextPage += 1
+        const res = await getTrendingFilms("week", nextPage)
+        totalPages = res?.total_pages ?? totalPages
+        const nextItems = (res?.results ?? [])
+          .filter((item: any) => Boolean(item.poster_path))
+          .filter((item: any) => !existingIds.has(item.id))
+          .map((item: any) => ({
+            id: item.id,
+            title: item.title,
+            releaseDate: item.release_date ?? null,
+            posterPath: item.poster_path ?? null,
+            backdropPath: item.backdrop_path ?? null,
+            rating: item.vote_average ?? null,
+            overview: item.overview ?? null,
+          }))
+
+        nextItems.forEach((film) => existingIds.add(film.id))
+        updatedTrending = [...updatedTrending, ...nextItems]
+
+        const moreCount = computeMoreCount(updatedTrending)
+        if (moreCount >= targetCount) {
+          break
+        }
+        safety += 1
+      }
+
+      setTrending(updatedTrending)
       setTrendingPage(nextPage)
-      setTrendingTotalPages(res?.total_pages ?? trendingTotalPages)
+      setTrendingTotalPages(totalPages)
+      setMoreVisibleCount(Math.min(targetCount, computeMoreCount(updatedTrending)))
     } catch (error) {
       console.error("Failed to load more trending films:", error)
     } finally {
@@ -236,54 +270,10 @@ export default function HomePage() {
               </div>
             )}
 
-            <div className="rounded-3xl border border-white/10 bg-[rgb(18,18,24)] p-6">
-              <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-white/50">Quick Access</h3>
-              <div className="space-y-2">
-                <Link
-                  to="/watchlist"
-                  onClick={(event) => {
-                    if (!user) {
-                      event.preventDefault()
-                      const next = encodeURIComponent(
-                        `${window.location.pathname}${window.location.search}`,
-                      )
-                      window.location.href = `/login?next=${next}`
-                    }
-                  }}
-                  className="flex items-center justify-between rounded-xl bg-white/5 px-4 py-3 text-sm text-white transition-colors hover:bg-white/10"
-                >
-                  <span>Your Watchlist</span>
-                  <span className="text-white/50">→</span>
-                </Link>
-                <Link
-                  to="/reviews"
-                  className="flex items-center justify-between rounded-xl bg-white/5 px-4 py-3 text-sm text-white transition-colors hover:bg-white/10"
-                >
-                  <span>Your Reviews</span>
-                  <span className="text-white/50">→</span>
-                </Link>
-                <Link
-                  to="/activity"
-                  onClick={(event) => {
-                    if (!user) {
-                      event.preventDefault()
-                      const next = encodeURIComponent(
-                        `${window.location.pathname}${window.location.search}`,
-                      )
-                      window.location.href = `/login?next=${next}`
-                    }
-                  }}
-                  className="flex items-center justify-between rounded-xl bg-white/5 px-4 py-3 text-sm text-white transition-colors hover:bg-white/10"
-                >
-                  <span>Activity Feed</span>
-                  <span className="text-white/50">→</span>
-                </Link>
-              </div>
-            </div>
           </div>
         </section>
 
-{/* Today's Picks - Vertical Grid */}
+        {/* Today's Picks - Vertical Grid */}
         <section className="mb-16">
           <div className="mb-6 flex items-center justify-between">
             <div>
@@ -292,26 +282,33 @@ export default function HomePage() {
             </div>
           </div>
 
-          {sectionsLoading ? (
-            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="aspect-[2/3] animate-pulse rounded-2xl bg-white/5" />
-              ))}
-            </div>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {todayPicks.map((film) => (
-                <FilmCard
-                  key={film.id}
-                  id={film.id}
-                  title={film.title}
-                  releaseDate={film.releaseDate}
-                  posterPath={film.posterPath}
-                  rating={film.rating}
-                />
-              ))}
-            </div>
-          )}
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {sectionsLoading
+              ? Array.from({ length: todaySlots }).map((_, i) => (
+                  <div key={i} className="aspect-[2/3] animate-pulse rounded-2xl bg-white/5" />
+                ))
+              : Array.from({ length: todaySlots }).map((_, i) => {
+                  const film = todayPicksForDisplay[i]
+                  if (!film) {
+                    return (
+                      <div
+                        key={`today-slot-${i}`}
+                        className="aspect-[2/3] rounded-2xl border border-white/10 bg-white/[0.04]"
+                      />
+                    )
+                  }
+                  return (
+                    <FilmCard
+                      key={film.id}
+                      id={film.id}
+                      title={film.title}
+                      releaseDate={film.releaseDate}
+                      posterPath={film.posterPath}
+                      rating={film.rating}
+                    />
+                  )
+                })}
+          </div>
         </section>
 
         {/* Trending - Masonry-style Vertical Grid */}
@@ -352,10 +349,7 @@ export default function HomePage() {
               <h2 className="font-['Outfit'] text-2xl font-bold text-white">More to Explore</h2>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {trending
-                .slice(9)
-                .filter((film) => !todayIds.has(film.id))
-                .map((film) => (
+              {moreToExplore.slice(0, moreVisibleCount).map((film) => (
                 <FilmCard
                   key={film.id}
                   id={film.id}
@@ -366,11 +360,18 @@ export default function HomePage() {
                 />
               ))}
             </div>
-            {canLoadMoreTrending && (
+            {(moreToExplore.length > moreVisibleCount || canLoadMoreTrending) && (
               <div className="mt-8 flex justify-center">
                 <button
                   type="button"
-                  onClick={handleLoadMoreTrending}
+                  onClick={() => {
+                    const nextTarget = moreVisibleCount + 8
+                    if (moreToExplore.length >= nextTarget || !canLoadMoreTrending) {
+                      setMoreVisibleCount(Math.min(nextTarget, moreToExplore.length))
+                      return
+                    }
+                    void handleLoadMoreTrending(nextTarget)
+                  }}
                   disabled={trendingLoading}
                   className="rounded-full border border-white/10 bg-white/5 px-6 py-2 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
                 >

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { usePageTitle } from "../../hooks/usePageTitle"
 import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import Header from "../../components/layout/Header"
 import FilmCard from "../../components/film/FilmCard"
@@ -35,6 +36,7 @@ export default function SearchResultsPage() {
   const [searchParams] = useSearchParams()
   const query = (searchParams.get("query") ?? "").trim()
   const type = (searchParams.get("type") as SearchType | null) ?? "film"
+  usePageTitle(query ? `Search: ${query}` : "Search")
 
   const [filmResults, setFilmResults] = useState<FilmSummary[]>([])
   const [peopleResults, setPeopleResults] = useState<PersonSummary[]>([])

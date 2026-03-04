@@ -1,7 +1,5 @@
 import { Router } from "express"
 import authRoutes from "../auth.routes"
-import activityRoutes from "../activity.routes"
-import commentRoutes from "../comment.routes"
 import diaryRoutes from "../diary.routes"
 import filmRoutes from "../film.routes"
 import personRoutes from "../person.routes"
@@ -17,8 +15,6 @@ import { authenticate } from "../../middleware/auth"
 const router = Router()
 
 router.use("/auth", authRoutes)
-router.use("/activity", activityRoutes)
-router.use("/", commentRoutes)
 router.use("/diary", diaryRoutes)
 router.use("/films", filmRoutes)
 router.use("/people", personRoutes)

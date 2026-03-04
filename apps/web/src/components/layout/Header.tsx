@@ -101,11 +101,12 @@ export default function Header() {
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-6 py-4">
         {/* Logo */}
         <Link to="/" className="group flex items-center gap-3">
-          <div className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-sm font-bold text-black shadow-lg shadow-amber-500/20 transition-all duration-500 group-hover:shadow-amber-500/40 group-hover:scale-105">
-            <span className="relative z-10">FL</span>
-            {/* Film strip accent */}
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
-            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
+          <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-[rgb(14,14,18)] p-1 shadow-lg shadow-black/40 transition-all duration-500 group-hover:shadow-black/60 group-hover:scale-105">
+            <img
+              src="/assets/logo.png"
+              alt="Filmly logo"
+              className="h-full w-full object-contain"
+            />
           </div>
           <div className="transition-transform duration-300 group-hover:translate-x-0.5">
             <p className="font-['Outfit'] text-base font-semibold tracking-tight text-white">Filmly</p>
@@ -120,7 +121,7 @@ export default function Header() {
               key={link.label}
               to={link.href}
               onClick={(event) => {
-                if (!user && (link.href === "/watchlist" || link.href === "/activity")) {
+                if (!user && link.href === "/watchlist") {
                   event.preventDefault()
                   redirectToLogin()
                 }
@@ -347,7 +348,7 @@ export default function Header() {
                   } ${open ? "animate-fade-up" : ""}`
                 }
                 onClick={(event) => {
-                  if (!user && (link.href === "/watchlist" || link.href === "/activity")) {
+                  if (!user && link.href === "/watchlist") {
                     event.preventDefault()
                     setOpen(false)
                     redirectToLogin()

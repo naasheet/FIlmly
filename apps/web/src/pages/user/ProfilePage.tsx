@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { usePageTitle } from "../../hooks/usePageTitle"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import api, { normalizeApiError } from "../../services/api"
 import { useAuthStore } from "../../stores/authStore"
@@ -55,6 +56,7 @@ export default function ProfilePage() {
   const navigate = useNavigate()
   const authUser = useAuthStore((state) => state.user)
   const [profile, setProfile] = useState<UserProfile | null>(null)
+  usePageTitle(profile ? `@${profile.username}` : null)
   const [stats, setStats] = useState<UserStats | null>(null)
   const [reviews, setReviews] = useState<UserReview[]>([])
   const [lists, setLists] = useState<List[]>([])
@@ -148,7 +150,7 @@ export default function ProfilePage() {
     if (!username) return
     const idle = (cb: () => void) => {
       if ("requestIdleCallback" in window) {
-        ;(window as any).requestIdleCallback(cb)
+        ; (window as any).requestIdleCallback(cb)
       } else {
         setTimeout(cb, 0)
       }
@@ -220,7 +222,7 @@ export default function ProfilePage() {
     }
     const idle = (cb: () => void) => {
       if ("requestIdleCallback" in window) {
-        ;(window as any).requestIdleCallback(cb)
+        ; (window as any).requestIdleCallback(cb)
       } else {
         setTimeout(cb, 0)
       }
@@ -392,30 +394,30 @@ export default function ProfilePage() {
                   Edit profile
                 </button>
               ) : (
-                  <FollowButton
-                    initialFollowing={isFollowing}
-                    onFollow={async () => {
-                      await api.post(`/users/${username}/follow`)
-                      setIsFollowing(true)
-                      setFollowersCount((prev) => prev + 1)
-                    }}
-                    onUnfollow={async () => {
-                      await api.delete(`/users/${username}/follow`)
-                      setIsFollowing(false)
-                      setFollowersCount((prev) => Math.max(0, prev - 1))
-                    }}
-                  />
-                )}
+                <FollowButton
+                  initialFollowing={isFollowing}
+                  onFollow={async () => {
+                    await api.post(`/users/${username}/follow`)
+                    setIsFollowing(true)
+                    setFollowersCount((prev) => prev + 1)
+                  }}
+                  onUnfollow={async () => {
+                    await api.delete(`/users/${username}/follow`)
+                    setIsFollowing(false)
+                    setFollowersCount((prev) => Math.max(0, prev - 1))
+                  }}
+                />
+              )}
             </div>
           </div>
-            {profile.bio && (
-              <p className="mt-6 max-w-3xl text-base leading-relaxed text-slate-300">
-                {profile.bio}
-              </p>
-            )}
+          {profile.bio && (
+            <p className="mt-6 max-w-3xl text-base leading-relaxed text-slate-300">
+              {profile.bio}
+            </p>
+          )}
 
-          </div>
-        </section>
+        </div>
+      </section>
 
       <main className="mx-auto w-full max-w-6xl px-6 pb-12 pt-8">
         <div className="flex flex-wrap gap-4 border-b border-white/10 pb-3 text-base">
@@ -424,11 +426,10 @@ export default function ProfilePage() {
               key={tab}
               type="button"
               onClick={() => setActiveTab(tab)}
-              className={`-mb-px border-b-2 pb-2 text-base font-semibold transition ${
-                activeTab === tab
+              className={`-mb-px border-b-2 pb-2 text-base font-semibold transition ${activeTab === tab
                   ? "border-indigo-400 text-indigo-200"
                   : "border-transparent text-slate-400 hover:text-slate-200"
-              }`}
+                }`}
             >
               {tab === "reviews" && `Reviews (${reviews.length})`}
               {tab === "diary" && "Diary"}
@@ -481,7 +482,7 @@ export default function ProfilePage() {
             )}
             {diaryLoaded &&
               diaryEntries.filter((entry) => (isOwnProfile ? true : !entry.isPrivate)).length ===
-                0 && (
+              0 && (
                 <p className="text-base text-slate-400">No public diary entries yet.</p>
               )}
           </div>
