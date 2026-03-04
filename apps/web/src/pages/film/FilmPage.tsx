@@ -559,8 +559,8 @@ export default function FilmPage() {
                                   type="button"
                                   onClick={() => setOscarsOpen(true)}
                                   className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${entry.won
-                                      ? "border-yellow-400/40 bg-yellow-400/10 text-yellow-200"
-                                      : "border-white/10 bg-white/5 text-white/70"
+                                    ? "border-yellow-400/40 bg-yellow-400/10 text-yellow-200"
+                                    : "border-white/10 bg-white/5 text-white/70"
                                     }`}
                                 >
                                   🏆 {entry.won ? "Oscar Winner" : "Oscar Nominee"} {entry.year}
@@ -798,7 +798,7 @@ export default function FilmPage() {
                         <div className="relative h-28 overflow-hidden rounded-xl bg-white/5">
                           {list.coverImagePath ? (
                             <img
-                              src={`https://image.tmdb.org/t/p/w780${list.coverImagePath}`}
+                              src={resolvePosterUrl(list.coverImagePath, "w780") ?? ""}
                               alt={list.title}
                               className="h-full w-full object-cover"
                             />
@@ -1027,8 +1027,8 @@ export default function FilmPage() {
                       <p className="text-sm font-semibold text-white">{entry.category}</p>
                       <span
                         className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${entry.won
-                            ? "border-yellow-400/40 bg-yellow-400/10 text-yellow-200"
-                            : "border-white/10 bg-white/5 text-white/60"
+                          ? "border-yellow-400/40 bg-yellow-400/10 text-yellow-200"
+                          : "border-white/10 bg-white/5 text-white/60"
                           }`}
                       >
                         {entry.won ? "Winner" : "Nominee"} · {entry.year}
