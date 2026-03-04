@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom"
 import { lazy, Suspense } from "react"
+import { Analytics } from "@vercel/analytics/react"
 import LoginPage from "./pages/auth/LoginPage"
 import SignupPage from "./pages/auth/SignupPage"
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage"
@@ -33,113 +34,39 @@ const PageLoader = () => (
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignupPage />} />
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+    <>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-      <Route path="/" element={<HomePage />} />
-      <Route
-        path="/films/:id"
-        element={
-          <Suspense fallback={<PageLoader />}>
-            <FilmPage />
-          </Suspense>
-        }
-      />
-      <Route
-        path="/person/:id"
-        element={
-          <Suspense fallback={<PageLoader />}>
-            <PersonPage />
-          </Suspense>
-        }
-      />
-      <Route
-        path="/users/:username"
-        element={
-          <Suspense fallback={<PageLoader />}>
-            <ProfilePage />
-          </Suspense>
-        }
-      />
-      <Route
-        path="/users/:username/diary"
-        element={
-          <Suspense fallback={<PageLoader />}>
-            <DiaryPage />
-          </Suspense>
-        }
-      />
-      <Route
-        path="/diary/:id"
-        element={
-          <Suspense fallback={<PageLoader />}>
-            <DiaryEntryPage />
-          </Suspense>
-        }
-      />
-      <Route
-        path="/users/search"
-        element={
-          <Suspense fallback={<PageLoader />}>
-            <UserSearchPage />
-          </Suspense>
-        }
-      />
-      <Route
-        path="/activity"
-        element={
-          <Suspense fallback={<PageLoader />}>
-            <ActivityFeedPage />
-          </Suspense>
-        }
-      />
-      <Route
-        path="/reviews"
-        element={
-          <Suspense fallback={<PageLoader />}>
-            <ReviewsPage />
-          </Suspense>
-        }
-      />
-      <Route path="/search" element={<SearchResultsPage />} />
-      <Route
-        path="/lists/:slug"
-        element={
-          <Suspense fallback={<PageLoader />}>
-            <ListDetailPage />
-          </Suspense>
-        }
-      />
-      <Route
-        path="/lists"
-        element={
-          <Suspense fallback={<PageLoader />}>
-            <BrowseListsPage />
-          </Suspense>
-        }
-      />
-
-      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<HomePage />} />
         <Route
-          path="/settings"
+          path="/films/:id"
           element={
             <Suspense fallback={<PageLoader />}>
-              <SettingsPage />
+              <FilmPage />
             </Suspense>
           }
         />
         <Route
-          path="/watchlist"
+          path="/person/:id"
           element={
             <Suspense fallback={<PageLoader />}>
-              <WatchlistPage />
+              <PersonPage />
             </Suspense>
           }
         />
         <Route
-          path="/diary"
+          path="/users/:username"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <ProfilePage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/users/:username/diary"
           element={
             <Suspense fallback={<PageLoader />}>
               <DiaryPage />
@@ -147,16 +74,93 @@ export default function App() {
           }
         />
         <Route
-          path="/me/lists"
+          path="/diary/:id"
           element={
             <Suspense fallback={<PageLoader />}>
-              <MyListsPage />
+              <DiaryEntryPage />
             </Suspense>
           }
         />
-      </Route>
+        <Route
+          path="/users/search"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <UserSearchPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/activity"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <ActivityFeedPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/reviews"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <ReviewsPage />
+            </Suspense>
+          }
+        />
+        <Route path="/search" element={<SearchResultsPage />} />
+        <Route
+          path="/lists/:slug"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <ListDetailPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/lists"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <BrowseListsPage />
+            </Suspense>
+          }
+        />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route element={<ProtectedRoute />}>
+          <Route
+            path="/settings"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <SettingsPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/watchlist"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <WatchlistPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/diary"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <DiaryPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/me/lists"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <MyListsPage />
+              </Suspense>
+            }
+          />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <Analytics />
+    </>
   )
 }
