@@ -156,9 +156,12 @@ export default function HomePage() {
 
   const todaySlots = 4
   const todayPicksForDisplay = useMemo(() => todayPicks.slice(0, todaySlots), [todayPicks])
-  const todayIds = useMemo(() => new Set(todayPicksForDisplay.map((film) => film.id)), [todayPicksForDisplay])
+  const todayIds = useMemo(
+    () => new Set(todayPicksForDisplay.map((film: Film) => film.id)),
+    [todayPicksForDisplay]
+  )
   const moreToExplore = useMemo(
-    () => trending.slice(9).filter((film) => !todayIds.has(film.id)),
+    () => trending.slice(9).filter((film: Film) => !todayIds.has(film.id)),
     [trending, todayIds]
   )
   const canLoadMoreTrending = trendingPage < trendingTotalPages
@@ -176,7 +179,7 @@ export default function HomePage() {
       ])
 
       const computeMoreCount = (items: Film[]) =>
-        items.slice(9).filter((film) => !todayIds.has(film.id)).length
+        items.slice(9).filter((film: Film) => !todayIds.has(film.id)).length
 
       let safety = 0
       while (nextPage < totalPages && safety < 5) {
@@ -349,7 +352,7 @@ export default function HomePage() {
               <h2 className="font-['Outfit'] text-2xl font-bold text-white">More to Explore</h2>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {moreToExplore.slice(0, moreVisibleCount).map((film) => (
+              {moreToExplore.slice(0, moreVisibleCount).map((film: Film) => (
                 <FilmCard
                   key={film.id}
                   id={film.id}
