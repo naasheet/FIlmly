@@ -68,7 +68,7 @@ export default function HomePage() {
         const todaySelection: Film[] = []
         const usedIds = new Set<number>()
 
-        todayCandidates.forEach((film) => {
+        todayCandidates.forEach((film: Film) => {
           if (todaySelection.length >= 4) return
           if (usedIds.has(film.id)) return
           usedIds.add(film.id)
@@ -76,7 +76,7 @@ export default function HomePage() {
         })
 
         if (todaySelection.length < 4) {
-          trendingCandidates.forEach((film) => {
+          trendingCandidates.forEach((film: Film) => {
             if (todaySelection.length >= 4) return
             if (usedIds.has(film.id)) return
             usedIds.add(film.id)
@@ -91,7 +91,7 @@ export default function HomePage() {
 
         if (trendingResult.status === "fulfilled") {
           const trendingResults = trendingCandidates
-            .filter((film) => !usedIds.has(film.id))
+            .filter((film: Film) => !usedIds.has(film.id))
             .slice(0, 12)
 
           setTrending(trendingResults)
@@ -199,7 +199,7 @@ export default function HomePage() {
             overview: item.overview ?? null,
           }))
 
-        nextItems.forEach((film) => existingIds.add(film.id))
+        nextItems.forEach((film: Film) => existingIds.add(film.id))
         updatedTrending = [...updatedTrending, ...nextItems]
 
         const moreCount = computeMoreCount(updatedTrending)
@@ -288,29 +288,29 @@ export default function HomePage() {
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {sectionsLoading
               ? Array.from({ length: todaySlots }).map((_, i) => (
-                  <div key={i} className="aspect-[2/3] animate-pulse rounded-2xl bg-white/5" />
-                ))
+                <div key={i} className="aspect-[2/3] animate-pulse rounded-2xl bg-white/5" />
+              ))
               : Array.from({ length: todaySlots }).map((_, i) => {
-                  const film = todayPicksForDisplay[i]
-                  if (!film) {
-                    return (
-                      <div
-                        key={`today-slot-${i}`}
-                        className="aspect-[2/3] rounded-2xl border border-white/10 bg-white/[0.04]"
-                      />
-                    )
-                  }
+                const film = todayPicksForDisplay[i]
+                if (!film) {
                   return (
-                    <FilmCard
-                      key={film.id}
-                      id={film.id}
-                      title={film.title}
-                      releaseDate={film.releaseDate}
-                      posterPath={film.posterPath}
-                      rating={film.rating}
+                    <div
+                      key={`today-slot-${i}`}
+                      className="aspect-[2/3] rounded-2xl border border-white/10 bg-white/[0.04]"
                     />
                   )
-                })}
+                }
+                return (
+                  <FilmCard
+                    key={film.id}
+                    id={film.id}
+                    title={film.title}
+                    releaseDate={film.releaseDate}
+                    posterPath={film.posterPath}
+                    rating={film.rating}
+                  />
+                )
+              })}
           </div>
         </section>
 
