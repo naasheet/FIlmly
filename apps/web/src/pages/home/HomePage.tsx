@@ -135,13 +135,17 @@ export default function HomePage() {
       lastStatsFetchRef.current = { userId, at: now }
 
       try {
-        const [watchlistRes, reviewsRes] = await Promise.all([
+        const username = user?.username
+        const [watchlistRes, reviewsRes, watchedRes] = await Promise.all([
           api.get("/watchlist/default").catch(() => ({ data: { items: [] } })),
           api.get("/reviews/me").catch(() => ({ data: [] })),
+          username
+            ? api.get(`/users/${username}/watched`).catch(() => ({ data: [] }))
+            : Promise.resolve({ data: [] }),
         ])
         if (!active) return
         setStats({
-          watched: 0,
+          watched: Array.isArray(watchedRes.data) ? watchedRes.data.length : 0,
           watchlist: watchlistRes.data?.items?.length ?? 0,
           reviews: reviewsRes.data?.length ?? 0,
         })
