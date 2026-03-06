@@ -14,7 +14,6 @@ export default function AchievementCard({ kind, progress, tiers, step, onOpenMod
   const { tier, level, totalCount, percentage, isMaxLevel, currentProgress } = progress
   const animatedTotal = useCountUp(totalCount)
 
-    const nextTier = isMaxLevel ? null : tiers[level] // level is 1-based, so tiers[level] = next
     const label = kind === "watched" ? "WATCHED" : "REVIEWS"
     const unit = kind === "watched" ? "films" : "reviews"
 

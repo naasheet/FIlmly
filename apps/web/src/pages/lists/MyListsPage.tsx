@@ -4,7 +4,7 @@ import { usePageTitle } from "../../hooks/usePageTitle"
 import Header from "../../components/layout/Header"
 import ListGrid from "../../components/lists/ListGrid"
 import CreateListModal from "../../components/lists/CreateListModal"
-import { deleteList, getMyLists, updateList } from "../../services/listApi"
+import { getMyLists } from "../../services/listApi"
 import type { List } from "../../stores/listStore"
 
 type TabKey = "created" | "collaborating" | "liked" | "saved"

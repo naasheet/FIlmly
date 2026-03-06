@@ -12,7 +12,7 @@ export class AppError extends Error {
 export function errorHandler(
   err: unknown,
   _req: Request,
-  res: Response,
+  res: any,
   _next: NextFunction
 ) {
   if (err instanceof AppError) {

@@ -24,7 +24,7 @@ app.use(morgan("dev"))
 const readLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 600,
-  skip: (req) =>
+  skip: (req: any) =>
     (req.method !== "GET" && req.method !== "HEAD") ||
     req.path.startsWith("/api/v1/notifications"),
 })
@@ -34,7 +34,7 @@ const writeLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 300,
   // Allow high-frequency notification polling to be controlled by its own limiter.
-  skip: (req) =>
+  skip: (req: any) =>
     req.method === "GET" ||
     req.method === "HEAD" ||
     req.path.startsWith("/api/v1/notifications"),

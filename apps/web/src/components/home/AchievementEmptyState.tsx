@@ -1,5 +1,4 @@
-import { Link } from "react-router-dom"
-import { Film, Pencil, Bookmark, ArrowRight } from "lucide-react"
+import { Film, Pencil, Bookmark } from "lucide-react"
 import "./achievements.css"
 
 export default function AchievementEmptyState() {
