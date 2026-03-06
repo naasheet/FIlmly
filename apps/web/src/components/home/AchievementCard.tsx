@@ -11,7 +11,7 @@ type Props = {
 }
 
 export default function AchievementCard({ kind, progress, tiers, step, onOpenModal }: Props) {
-  const { tier, level, totalCount, percentage, isMaxLevel, currentProgress } = progress
+  const { tier, level, totalCount, percentage, currentProgress } = progress
   const animatedTotal = useCountUp(totalCount)
 
     const label = kind === "watched" ? "WATCHED" : "REVIEWS"
