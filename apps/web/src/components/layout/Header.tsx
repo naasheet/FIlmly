@@ -316,10 +316,60 @@ export default function Header() {
 
       {/* Mobile Menu */}
       <div
-        className={`overflow-hidden border-t border-white/5 transition-all duration-500 ease-out md:hidden ${open ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+        className={`overflow-y-auto border-t border-white/5 transition-all duration-500 ease-out md:hidden ${open ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0"
           }`}
       >
         <div className="px-6 py-6">
+          <div className="mb-4">
+            <FilmSearch
+              onSelect={(film) => {
+                setOpen(false)
+                navigate(`/films/${film.id}`)
+              }}
+            />
+          </div>
+
+          {user && (
+            <div className="mb-4 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/40">
+                Notifications
+              </p>
+              <NotificationsBell />
+            </div>
+          )}
+
+          {user && (
+            <div className="mb-6">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-white/40">
+                Create
+              </p>
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false)
+                    navigate("/diary")
+                  }}
+                  className="flex items-center justify-between rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-2.5 text-sm font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-400/20"
+                >
+                  Diary Entry
+                  <Plus className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false)
+                    navigate("/me/lists?create=1")
+                  }}
+                  className="flex items-center justify-between rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-2.5 text-sm font-semibold text-amber-200 transition hover:border-amber-400/60 hover:bg-amber-400/20"
+                >
+                  List
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
           <nav className="flex flex-col gap-2">
             {navLinks.map((link, index) => (
               <NavLink
@@ -376,6 +426,13 @@ export default function Header() {
                     className="btn-secondary w-full text-center text-sm"
                   >
                     Profile
+                  </Link>
+                  <Link
+                    to="/settings"
+                    onClick={() => setOpen(false)}
+                    className="btn-secondary w-full text-center text-sm"
+                  >
+                    Settings
                   </Link>
                   <button
                     type="button"
