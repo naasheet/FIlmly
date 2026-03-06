@@ -80,6 +80,19 @@ router.post("/read-all", authenticate, async (req, res) => {
   }
 })
 
+router.post("/clear-all", authenticate, async (req, res) => {
+  try {
+    const userId = req.user?.id
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" })
+    }
+    const result = await notificationService.clearAll(userId)
+    return res.status(200).json(result)
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message ?? "Failed to clear notifications" })
+  }
+})
+
 router.post("/:id/read", authenticate, markOneValidation, async (req, res) => {
   const validationError = handleValidation(req, res)
   if (validationError) return validationError

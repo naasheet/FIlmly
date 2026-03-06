@@ -132,6 +132,19 @@ export async function getStatsHandler(req: Request, res: Response) {
   }
 }
 
+export async function getMyStatsHandler(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" })
+    }
+    const stats = await getUserStats(userId)
+    return res.status(200).json(stats)
+  } catch (error: any) {
+    return res.status(500).json({ message: error.message ?? "Failed to fetch stats" })
+  }
+}
+
 export async function getReviewsHandler(req: Request, res: Response) {
   try {
     const username = asStringParam(req.params.username)

@@ -13,6 +13,7 @@ import {
 import Header from "../../components/layout/Header"
 import DiaryEntry, { DiaryDay, type DiaryEntryData } from "../../components/diary/DiaryEntry"
 import DiaryForm from "../../components/diary/DiaryForm"
+import RatingStars from "../../components/ui/RatingStars"
 import {
     getUserDiary,
     getUserDiaryCalendar,
@@ -34,6 +35,9 @@ const MONTHS = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
 ]
+
+const CALENDAR_YEAR_START = 1900
+const CALENDAR_YEAR_END = 2100
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Component
@@ -63,13 +67,11 @@ export default function DiaryPage() {
         Array<{ id: number; title: string; releaseDate?: string | null; posterPath?: string | null }>
     >([])
     const [filmSearching, setFilmSearching] = useState(false)
-    const [selectedFilmRating, setSelectedFilmRating] = useState<number | null>(null)
-    const [ratingLocked, setRatingLocked] = useState(false)
     const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
     const [selectedEntry, setSelectedEntry] = useState<DiaryEntryData | null>(null)
     const [selectedDate, setSelectedDate] = useState<string | null>(null)
     const [selectedDateEntries, setSelectedDateEntries] = useState<
-        Array<{ id: string; filmId: number; filmTitle: string; filmPoster: string | null; mood: string | null; rating: number | null }>
+        Array<{ id: string; filmId: number; filmTitle: string; filmPoster: string | null; mood: string | null }>
     >([])
 
     // Calendar state
@@ -101,8 +103,6 @@ export default function DiaryPage() {
             setFilmQuery("")
             setFilmResults([])
             setSelectedFilm(null)
-            setSelectedFilmRating(null)
-            setRatingLocked(false)
             setCreateError(null)
         }
     }, [showCreate])
@@ -346,7 +346,7 @@ export default function DiaryPage() {
                 {/* Stats Bar */}
                 {statsData && (
                     <div
-                        className={`mb-6 grid grid-cols-2 gap-3 rounded-2xl border border-white/5 bg-white/[0.02] p-4 sm:grid-cols-${Object.keys(statsData.formatDistribution).length > 0 ? "4" : "3"
+                        className={`mb-6 grid grid-cols-2 gap-3 rounded-2xl border border-white/5 bg-white/[0.02] p-4 sm:grid-cols-${Object.keys(statsData.formatDistribution).length > 0 ? "3" : "2"
                             }`}
                     >
                         <div>
@@ -355,14 +355,6 @@ export default function DiaryPage() {
                             </p>
                             <p className="mt-1 text-2xl font-bold text-white">
                                 {statsData.totalEntries}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-xs font-medium uppercase tracking-wider text-white/40">
-                                Avg Rating
-                            </p>
-                            <p className="mt-1 text-2xl font-bold text-amber-400">
-                                {statsData.averageRating?.toFixed(1) ?? "—"}
                             </p>
                         </div>
                         <div>
@@ -383,8 +375,11 @@ export default function DiaryPage() {
                                     Top Format
                                 </p>
                                 <p className="mt-1 text-lg font-medium text-white/70">
-                                    {Object.entries(statsData.formatDistribution)
-                                        .sort((a, b) => b[1] - a[1])[0]?.[0] ?? "—"}
+                                    {(() => {
+                                        const topFormat = Object.entries(statsData.formatDistribution)
+                                            .sort((a, b) => b[1] - a[1])[0]?.[0]
+                                        return topFormat ? formatLabel(topFormat) : "â€”"
+                                    })()}
                                 </p>
                             </div>
                         )}
@@ -404,9 +399,6 @@ export default function DiaryPage() {
                                     {[
                                         { id: "home", label: "Home" },
                                         { id: "cinema", label: "Cinema" },
-                                        { id: "friends", label: "Friend's" },
-                                        { id: "outdoor", label: "Outdoor" },
-                                        { id: "travel", label: "Travel" },
                                         { id: "other", label: "Other" },
                                     ].map((loc) => (
                                         <button
@@ -561,9 +553,43 @@ export default function DiaryPage() {
                                 Prev
                             </button>
 
-                            <h2 className="font-['Outfit'] text-xl font-semibold text-white">
-                                {MONTHS[calendarMonth - 1]} {calendarYear}
-                            </h2>
+                            <div className="flex items-center gap-2">
+                                <select
+                                    value={calendarMonth}
+                                    onChange={(event) => setCalendarMonth(Number(event.target.value))}
+                                    className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white outline-none transition focus:border-amber-400/50"
+                                    aria-label="Select month"
+                                >
+                                    {MONTHS.map((month, index) => (
+                                        <option
+                                            key={month}
+                                            value={index + 1}
+                                            className="bg-[rgb(18,18,24)] text-white"
+                                        >
+                                            {month}
+                                        </option>
+                                    ))}
+                                </select>
+                                <select
+                                    value={calendarYear}
+                                    onChange={(event) => setCalendarYear(Number(event.target.value))}
+                                    className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white outline-none transition focus:border-amber-400/50"
+                                    aria-label="Select year"
+                                >
+                                    {Array.from(
+                                        { length: CALENDAR_YEAR_END - CALENDAR_YEAR_START + 1 },
+                                        (_, index) => CALENDAR_YEAR_START + index
+                                    ).map((year) => (
+                                        <option
+                                            key={year}
+                                            value={year}
+                                            className="bg-[rgb(18,18,24)] text-white"
+                                        >
+                                            {year}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
 
                             <button
                                 onClick={goToNextMonth}
@@ -655,32 +681,13 @@ export default function DiaryPage() {
                                         <button
                                             key={film.id}
                                             type="button"
-                                            onClick={async () => {
-                                                setSelectedFilm({ id: film.id, title: film.title, posterPath: film.posterPath ?? null })
-                                                setSelectedFilmRating(null)
-                                                setRatingLocked(false)
-                                                try {
-                                                    const ratingRes = await api.get(`/ratings/film/${film.id}`)
-                                                    const ratingValue = ratingRes.data?.rating ?? null
-                                                    if (ratingValue !== null) {
-                                                        setSelectedFilmRating(ratingValue)
-                                                        setRatingLocked(true)
-                                                        return
-                                                    }
-                                                    const reviewsRes = await api.get("/reviews/me")
-                                                    const reviewMatch = (reviewsRes.data ?? []).find(
-                                                        (review: any) => review.film?.id === film.id,
-                                                    )
-                                                    if (reviewMatch?.rating !== undefined) {
-                                                        setSelectedFilmRating(reviewMatch?.rating ?? null)
-                                                        setRatingLocked(true)
-                                                    } else {
-                                                        setSelectedFilmRating(null)
-                                                    }
-                                                } catch {
-                                                    setSelectedFilmRating(null)
-                                                }
-                                            }}
+                                            onClick={() =>
+                                                setSelectedFilm({
+                                                    id: film.id,
+                                                    title: film.title,
+                                                    posterPath: film.posterPath ?? null,
+                                                })
+                                            }
                                             className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-sm text-slate-100 transition hover:border-white/30 hover:bg-white/10"
                                         >
                                             <div className="flex items-center gap-3">
@@ -718,10 +725,6 @@ export default function DiaryPage() {
                                 filmId={selectedFilm.id}
                                 filmTitle={selectedFilm.title}
                                 filmPosterPath={selectedFilm.posterPath ?? null}
-                                initialValues={{
-                                    rating: selectedFilmRating ?? undefined,
-                                }}
-                                lockRating={ratingLocked}
                                 onSubmit={async (values) => {
                                     setCreateError(null)
                                     if (!accessToken) {
@@ -734,7 +737,12 @@ export default function DiaryPage() {
                                             filmId: selectedFilm.id,
                                             watchedDate: values.watchedDate,
                                             mood: values.mood,
-                                            rating: values.rating,
+                                            expectedRating: values.expectedRating,
+                                            expectedNote: values.expectedNote,
+                                            actualRating: values.actualRating,
+                                            actualNote: values.actualNote,
+                                            rewatchability: values.rewatchability,
+                                            rewatchabilityWhy: values.rewatchabilityWhy,
                                             location: values.location,
                                             venue: values.venue,
                                             format: values.format,
@@ -742,7 +750,6 @@ export default function DiaryPage() {
                                             companions: values.companions,
                                             notes: values.notes,
                                             isPrivate: values.isPrivate,
-                                            linkToReview: values.linkToReview,
                                         })
                                         setShowCreate(false)
                                         await Promise.all([
@@ -847,55 +854,140 @@ export default function DiaryPage() {
                             </div>
 
                             <div className="space-y-4 text-sm text-white/70">
-                                <div>
-                                    <p className="text-xs uppercase tracking-wider text-white/40">
-                                        Watched date
-                                    </p>
-                                    <p className="mt-1 text-white">
-                                        {new Date(selectedEntry.watchedDate).toLocaleDateString("en-US", {
-                                            weekday: "long",
-                                            month: "long",
-                                            day: "numeric",
-                                            year: "numeric",
-                                        })}
-                                    </p>
-                                </div>
-
-                                {selectedEntry.rating !== null && selectedEntry.rating !== undefined && (
+                                <div className="grid gap-4 sm:grid-cols-2">
                                     <div>
                                         <p className="text-xs uppercase tracking-wider text-white/40">
-                                            Rating
+                                            Watched date
                                         </p>
-                                        <p className="mt-1 text-amber-300">{selectedEntry.rating.toFixed(1)}</p>
-                                    </div>
-                                )}
-
-                                {selectedEntry.mood && (
-                                    <div>
-                                        <p className="text-xs uppercase tracking-wider text-white/40">
-                                            Mood
+                                        <p className="mt-1 text-white">
+                                            {new Date(selectedEntry.watchedDate).toLocaleDateString("en-US", {
+                                                weekday: "long",
+                                                month: "long",
+                                                day: "numeric",
+                                                year: "numeric",
+                                            })}
                                         </p>
-                                        <p className="mt-1 text-white">{formatLabel(selectedEntry.mood)}</p>
                                     </div>
-                                )}
-
-                                {(selectedEntry.location || selectedEntry.venue) && (
                                     <div>
                                         <p className="text-xs uppercase tracking-wider text-white/40">
                                             Location
                                         </p>
                                         <p className="mt-1 text-white">
-                                            {selectedEntry.venue ?? formatLabel(selectedEntry.location ?? "")}
+                                            {(selectedEntry.venue ?? formatLabel(selectedEntry.location ?? "")) || "-"}
                                         </p>
                                     </div>
-                                )}
+                                </div>
 
-                                {selectedEntry.format && (
+                                <div className="grid gap-4 sm:grid-cols-2">
                                     <div>
                                         <p className="text-xs uppercase tracking-wider text-white/40">
                                             Format
                                         </p>
-                                        <p className="mt-1 text-white">{selectedEntry.format}</p>
+                                        <p className="mt-1 text-white">
+                                            {selectedEntry.format ? formatLabel(selectedEntry.format) : "-"}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs uppercase tracking-wider text-white/40">
+                                            Mood
+                                        </p>
+                                        <p className="mt-1 text-white">
+                                            {selectedEntry.mood ? formatLabel(selectedEntry.mood) : "-"}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <p className="text-xs uppercase tracking-wider text-white/40">
+                                        Vibes
+                                    </p>
+                                    <p className="mt-1 text-white">
+                                        {selectedEntry.vibes && selectedEntry.vibes.length > 0
+                                            ? selectedEntry.vibes.join(", ")
+                                            : "-"}
+                                    </p>
+                                </div>
+
+                                {(selectedEntry.expectedRating !== null && selectedEntry.expectedRating !== undefined) ||
+                                (selectedEntry.actualRating !== null && selectedEntry.actualRating !== undefined) ||
+                                selectedEntry.expectedNote ||
+                                selectedEntry.actualNote ? (
+                                    <div>
+                                        <p className="text-xs uppercase tracking-wider text-white/40">
+                                            Expectation vs Reality
+                                        </p>
+                                        <div className="mt-2 grid gap-3 sm:grid-cols-2">
+                                            <div>
+                                                <p className="text-[11px] uppercase tracking-wider text-white/40">
+                                                    Expected
+                                                </p>
+                                                <div className="mt-1 flex flex-wrap items-center gap-2">
+                                                    <RatingStars
+                                                        value={selectedEntry.expectedRating ?? 0}
+                                                        readOnly={true}
+                                                        step={0.5}
+                                                        size="sm"
+                                                        label="Expected rating"
+                                                    />
+                                                    <span className="text-xs text-amber-300">
+                                                        {selectedEntry.expectedRating ? selectedEntry.expectedRating.toFixed(1) : "-"}
+                                                    </span>
+                                                </div>
+                                                {selectedEntry.expectedNote ? (
+                                                    <p className="mt-1 text-xs text-white/60">
+                                                        {selectedEntry.expectedNote}
+                                                    </p>
+                                                ) : null}
+                                            </div>
+                                            <div>
+                                                <p className="text-[11px] uppercase tracking-wider text-white/40">
+                                                    Actually
+                                                </p>
+                                                <div className="mt-1 flex flex-wrap items-center gap-2">
+                                                    <RatingStars
+                                                        value={selectedEntry.actualRating ?? 0}
+                                                        readOnly={true}
+                                                        step={0.5}
+                                                        size="sm"
+                                                        label="Actual rating"
+                                                    />
+                                                    <span className="text-xs text-amber-300">
+                                                        {selectedEntry.actualRating ? selectedEntry.actualRating.toFixed(1) : "-"}
+                                                    </span>
+                                                </div>
+                                                {selectedEntry.actualNote ? (
+                                                    <p className="mt-1 text-xs text-white/60">
+                                                        {selectedEntry.actualNote}
+                                                    </p>
+                                                ) : null}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : null}
+
+                                {(selectedEntry.rewatchability || selectedEntry.rewatchabilityWhy) && (
+                                    <div>
+                                        <p className="text-xs uppercase tracking-wider text-white/40">
+                                            Rewatchability
+                                        </p>
+                                        <p className="mt-1 text-white">
+                                            {(() => {
+                                                const labelMap: Record<string, string> = {
+                                                    one_time: "❄️ One time",
+                                                    maybe: "Maybe",
+                                                    definitely: "Definitely",
+                                                    infinite: "♾️ Infinite",
+                                                }
+                                                return selectedEntry.rewatchability
+                                                    ? labelMap[selectedEntry.rewatchability] || selectedEntry.rewatchability
+                                                    : "-"
+                                            })()}
+                                        </p>
+                                        {selectedEntry.rewatchabilityWhy && (
+                                            <p className="mt-2 text-sm text-white/60">
+                                                {selectedEntry.rewatchabilityWhy}
+                                            </p>
+                                        )}
                                     </div>
                                 )}
 
@@ -915,17 +1007,6 @@ export default function DiaryPage() {
                                                 </Link>
                                             ))}
                                         </div>
-                                    </div>
-                                )}
-
-                                {selectedEntry.vibes && selectedEntry.vibes.length > 0 && (
-                                    <div>
-                                        <p className="text-xs uppercase tracking-wider text-white/40">
-                                            Vibes
-                                        </p>
-                                        <p className="mt-1 text-white">
-                                            {selectedEntry.vibes.join(", ")}
-                                        </p>
                                     </div>
                                 )}
 
@@ -1006,11 +1087,6 @@ export default function DiaryPage() {
                                             <p className="text-xs text-white/50">Mood: {entry.mood}</p>
                                         )}
                                     </div>
-                                    {entry.rating !== null && entry.rating !== undefined && (
-                                        <div className="text-sm font-semibold text-amber-300">
-                                            {entry.rating.toFixed(1)}
-                                        </div>
-                                    )}
                                 </button>
                             ))}
                             {selectedDateEntries.length === 0 && (

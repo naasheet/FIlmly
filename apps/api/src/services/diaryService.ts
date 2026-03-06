@@ -13,7 +13,12 @@ export type CreateDiaryEntryInput = {
     filmId: number
     watchedDate?: string | Date
     mood?: string | null
-    rating?: number | null
+    expectedRating?: number | null
+    expectedNote?: string | null
+    actualRating?: number | null
+    actualNote?: string | null
+    rewatchability?: string | null
+    rewatchabilityWhy?: string | null
     location?: string | null
     venue?: string | null
     format?: string | null
@@ -27,7 +32,12 @@ export type CreateDiaryEntryInput = {
 export type UpdateDiaryEntryInput = {
     watchedDate?: string | Date
     mood?: string | null
-    rating?: number | null
+    expectedRating?: number | null
+    expectedNote?: string | null
+    actualRating?: number | null
+    actualNote?: string | null
+    rewatchability?: string | null
+    rewatchabilityWhy?: string | null
     location?: string | null
     venue?: string | null
     format?: string | null
@@ -79,7 +89,12 @@ export async function createEntry(data: CreateDiaryEntryInput) {
             filmId: data.filmId,
             watchedDate: data.watchedDate ? new Date(data.watchedDate) : new Date(),
             mood: data.mood ?? null,
-            rating: data.rating ?? null,
+            expectedRating: data.expectedRating ?? null,
+            expectedNote: data.expectedNote ?? null,
+            actualRating: data.actualRating ?? null,
+            actualNote: data.actualNote ?? null,
+            rewatchability: data.rewatchability ?? null,
+            rewatchabilityWhy: data.rewatchabilityWhy ?? null,
             location: data.location ?? null,
             venue: data.venue ?? null,
             format: data.format ?? null,
@@ -116,7 +131,26 @@ export async function updateEntry(
                     ? new Date(data.watchedDate)
                     : existing.watchedDate,
             mood: data.mood !== undefined ? data.mood : existing.mood,
-            rating: data.rating !== undefined ? data.rating : existing.rating,
+            expectedRating:
+                data.expectedRating !== undefined
+                    ? data.expectedRating
+                    : existing.expectedRating,
+            expectedNote:
+                data.expectedNote !== undefined ? data.expectedNote : existing.expectedNote,
+            actualRating:
+                data.actualRating !== undefined
+                    ? data.actualRating
+                    : existing.actualRating,
+            actualNote:
+                data.actualNote !== undefined ? data.actualNote : existing.actualNote,
+            rewatchability:
+                data.rewatchability !== undefined
+                    ? data.rewatchability
+                    : existing.rewatchability,
+            rewatchabilityWhy:
+                data.rewatchabilityWhy !== undefined
+                    ? data.rewatchabilityWhy
+                    : existing.rewatchabilityWhy,
             location: data.location !== undefined ? data.location : existing.location,
             venue: data.venue !== undefined ? data.venue : existing.venue,
             format: data.format !== undefined ? data.format : existing.format,
@@ -344,7 +378,6 @@ export async function getDiaryCalendar(
             filmTitle: string
             filmPoster: string | null
             mood: string | null
-            rating: number | null
         }>
     > = {}
 
@@ -359,7 +392,6 @@ export async function getDiaryCalendar(
             filmTitle: entry.film.title,
             filmPoster: entry.film.posterPath,
             mood: entry.mood,
-            rating: entry.rating,
         })
     }
 
@@ -383,7 +415,6 @@ export async function getDiaryStats(userId: string) {
             format: true,
             location: true,
             vibes: true,
-            rating: true,
             watchedDate: true,
         },
     })
@@ -412,18 +443,10 @@ export async function getDiaryStats(userId: string) {
         }
     }
 
-    // Average rating
-    const ratings = entries.filter((e) => e.rating !== null).map((e) => e.rating!)
-    const averageRating =
-        ratings.length > 0
-            ? ratings.reduce((sum, r) => sum + r, 0) / ratings.length
-            : null
-
     return {
         totalEntries: entries.length,
         moodDistribution: moodCounts,
         formatDistribution: formatCounts,
         locationDistribution: locationCounts,
-        averageRating,
     }
 }

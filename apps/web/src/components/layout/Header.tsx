@@ -157,7 +157,7 @@ export default function Header() {
 
             {/* Create Dropdown */}
             <div
-              className={`absolute right-0 top-full mt-3 w-56 origin-top-right rounded-2xl border border-white/10 bg-[rgb(18,18,24)]/95 p-2 shadow-2xl backdrop-blur-xl transition-all duration-300 ${createOpen ? "scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"
+              className={`absolute right-0 top-full mt-3 w-56 max-h-72 origin-top-right overflow-y-auto rounded-2xl border border-white/10 bg-[rgb(18,18,24)]/95 p-2 shadow-2xl backdrop-blur-xl transition-all duration-300 ${createOpen ? "scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"
                 }`}
             >
               <div className="mb-2 border-b border-white/5 px-3 pb-2">
@@ -217,7 +217,7 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => setMenuOpen((prev) => !prev)}
-                  className="group flex cursor-pointer items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-left transition-all duration-300 hover:border-amber-400/30 hover:bg-white/10"
+                  className="group flex cursor-pointer items-center gap-3 rounded-full bg-white/5 p-1.5 text-left transition-all duration-300 hover:bg-white/10"
                 >
                   <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-amber-400/20 to-amber-600/20 text-xs font-semibold text-amber-300 ring-2 ring-amber-400/20 transition-all duration-300 group-hover:ring-amber-400/40">
                     {user.avatarUrl ? (
@@ -230,21 +230,6 @@ export default function Header() {
                       getInitials(user.name, user.email)
                     )}
                   </div>
-                  <div className="text-sm">
-                    <p className="font-medium text-white">{user.name ?? user.email}</p>
-                    {user.username && (
-                      <p className="text-xs text-slate-400">@{user.username}</p>
-                    )}
-                  </div>
-                  {/* Dropdown arrow */}
-                  <svg
-                    className={`h-4 w-4 text-slate-400 transition-transform duration-300 ${menuOpen ? "rotate-180" : ""}`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
                 </button>
 
                 {/* Dropdown Menu */}
@@ -283,7 +268,7 @@ export default function Header() {
                       setMenuOpen(false)
                       void handleLogout()
                     }}
-                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-rose-300 transition-all duration-200 hover:bg-rose-500/10 hover:text-rose-200"
+                    className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-rose-300 transition-all duration-200 hover:bg-rose-500/10 hover:text-rose-200"
                   >
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

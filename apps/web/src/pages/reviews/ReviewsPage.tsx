@@ -103,6 +103,11 @@ export default function ReviewsPage() {
                       <h3 className="font-['Outfit'] font-semibold text-white group-hover:text-amber-400">
                         {review.film.title}
                       </h3>
+                      {review.title && (
+                        <p className="mt-1 text-sm font-semibold text-white">
+                          {review.title}
+                        </p>
+                      )}
                       <p className="text-xs text-white/40">
                         {review.updatedAt
                           ? new Date(review.updatedAt).toLocaleDateString("en-US", {

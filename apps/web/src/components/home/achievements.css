@@ -1,0 +1,288 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Achievement System – custom animations & effects
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* ── Progress bar fill ─────────────────────────────────────────────────────── */
+@keyframes progressFill {
+    from {
+        width: 0;
+    }
+}
+
+/* ── Badge pulse for legendary / max tiers ─────────────────────────────────── */
+@keyframes badgePulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.06);
+    }
+}
+
+/* ── Rainbow shimmer for max-level badge border ────────────────────────────── */
+@keyframes shimmer {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* ── Entrance animation ────────────────────────────────────────────────────── */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── Card entrance stagger ─────────────────────────────────────────────────── */
+.achievement-enter {
+    animation: fadeInUp 0.5s ease-out both;
+}
+
+.achievement-enter:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.achievement-enter:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.achievement-enter:nth-child(3) {
+    animation-delay: 0.25s;
+}
+
+/* ── Progress bar ──────────────────────────────────────────────────────────── */
+.achievement-progress-track {
+    height: 8px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+}
+
+.achievement-progress-fill {
+    height: 100%;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, #7C3AED, #9333EA, #A855F7);
+    box-shadow: 0 0 12px rgba(124, 58, 237, 0.45);
+    animation: progressFill 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: 0.3s;
+}
+
+/* ── Badge ─────────────────────────────────────────────────────────────────── */
+.achievement-badge {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+    border: 3px solid var(--badge-color, rgba(255, 255, 255, 0.15));
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.06), transparent 60%),
+        rgba(18, 18, 24, 0.95);
+    box-shadow: 0 0 18px var(--badge-glow, transparent),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transition: transform 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease;
+}
+
+.achievement-badge:hover {
+    transform: scale(1.12);
+    filter: brightness(1.2);
+}
+
+.achievement-badge .badge-emoji {
+    font-size: 28px;
+    line-height: 1;
+}
+
+/* Level number pill on badge */
+.achievement-badge .badge-level {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--badge-color, #6b7280);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgb(18, 18, 24);
+    box-shadow: 0 0 6px var(--badge-glow, transparent);
+}
+
+/* ── Legendary pulse ───────────────────────────────────────────────────────── */
+.achievement-badge--legendary {
+    animation: badgePulse 2.4s ease-in-out infinite;
+    border-image: linear-gradient(135deg, #7C3AED, #EC4899, #F59E0B, #7C3AED) 1;
+    border-style: solid;
+    border-width: 3px;
+    border-radius: 50%;
+    /* border-image breaks border-radius, use outline trick instead */
+    border-image: none;
+    border-color: #7C3AED;
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.5),
+        0 0 40px rgba(236, 72, 153, 0.25);
+}
+
+.achievement-badge--max {
+    animation: badgePulse 2s ease-in-out infinite;
+    box-shadow: 0 0 24px rgba(236, 72, 153, 0.55),
+        0 0 48px rgba(124, 58, 237, 0.3);
+}
+
+/* ── Achievement card hover ────────────────────────────────────────────────── */
+.achievement-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.achievement-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 28px rgba(124, 58, 237, 0.25);
+    border-color: rgba(124, 58, 237, 0.45);
+}
+
+/* ── Simple (watchlist) card subtle hover ───────────────────────────────────── */
+.simple-stat-card {
+    transition: background 0.3s ease;
+}
+
+.simple-stat-card:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+/* ── Modal ─────────────────────────────────────────────────────────────────── */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.achievement-modal-backdrop {
+    animation: modalFadeIn 0.2s ease-out both;
+}
+
+.achievement-modal-content {
+    animation: modalSlideUp 0.3s ease-out both;
+    animation-delay: 0.05s;
+}
+
+/* ── Modal tier row ────────────────────────────────────────────────────────── */
+.tier-row {
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.tier-row--current {
+    transform: scale(1.03);
+    background: rgba(124, 58, 237, 0.12);
+    border-color: rgba(124, 58, 237, 0.4) !important;
+}
+
+.tier-row--locked {
+    opacity: 0.4;
+}
+
+/* ── Mobile horizontal scroll layout ───────────────────────────────────────── */
+@media (max-width: 767px) {
+    .achievement-scroll-container {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+        /* hide scrollbar */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .achievement-scroll-container::-webkit-scrollbar {
+        display: none;
+    }
+
+    .achievement-scroll-container>* {
+        scroll-snap-align: start;
+        min-width: 260px;
+        flex-shrink: 0;
+    }
+}
+
+/* Desktop: keep vertical stack */
+@media (min-width: 768px) {
+    .achievement-scroll-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+
+/* ── Empty state ──────────────────────────────────────────────────────────── */
+.achievement-empty-pulse {
+    animation: badgePulse 3s ease-in-out infinite;
+}
+
+/* ── Bonus Badge Cards ────────────────────────────────────────────────────── */
+.bonus-badge-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.bonus-badge-card:hover {
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.12);
+}
+
+.bonus-badge-icon {
+    transition: transform 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Unlocked badge subtle pulse */
+@keyframes bonusBadgePulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 16px var(--bonus-glow, transparent);
+    }
+
+    50% {
+        box-shadow: 0 0 28px var(--bonus-glow, transparent);
+    }
+}
+
+.bonus-badge-card:not(.bonus-badge-card--locked) .bonus-badge-icon {
+    animation: bonusBadgePulse 3s ease-in-out infinite;
+}

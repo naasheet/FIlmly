@@ -132,7 +132,20 @@ type MoodBadgeProps = {
 export function MoodBadge({ mood, showLabel = true, size = "md" }: MoodBadgeProps) {
     const moodConfig = MOOD_LIST.find((m) => m.id === mood)
 
-    if (!moodConfig) return null
+    if (!moodConfig) {
+        if (!mood) return null
+        const sizeClasses = {
+            sm: "px-2 py-0.5 text-xs",
+            md: "px-3 py-1 text-sm",
+        }
+        return (
+            <span
+                className={`inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 font-medium text-white/70 ${sizeClasses[size]}`}
+            >
+                {showLabel && <span>{mood}</span>}
+            </span>
+        )
+    }
 
     const sizeClasses = {
         sm: "px-2 py-0.5 text-xs",

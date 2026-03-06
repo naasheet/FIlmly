@@ -81,6 +81,8 @@ export default function ListDetailPage() {
   const [likesOpen, setLikesOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
   const [deleteBusy, setDeleteBusy] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [removeConfirmTarget, setRemoveConfirmTarget] = useState<ListContributor | null>(null)
 
   const [listStats, setListStats] = useState<any>(null)
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null)
@@ -299,8 +301,6 @@ export default function ListDetailPage() {
 
   const handleDelete = async () => {
     if (!list || !isOwner || deleteBusy) return
-    const confirmed = window.confirm("Delete this list permanently?")
-    if (!confirmed) return
 
     setDeleteBusy(true)
     setToast(null)
@@ -346,9 +346,6 @@ export default function ListDetailPage() {
 
   const handleRemoveContributor = async (contributor: ListContributor) => {
     if (!list || !isOwner || removeBusyId || contributor.role === "OWNER") return
-
-    const confirmed = window.confirm("Remove this collaborator?")
-    if (!confirmed) return
 
     setRemoveBusyId(contributor.id)
     setToast(null)
@@ -505,7 +502,7 @@ export default function ListDetailPage() {
               {isOwner && (
                 <button
                   type="button"
-                  onClick={handleDelete}
+                  onClick={() => setDeleteConfirmOpen(true)}
                   disabled={deleteBusy}
                   className={`flex items-center gap-2 rounded-full border border-rose-400/40 bg-rose-400/10 px-4 py-2 text-sm font-semibold text-rose-200 transition hover:border-rose-400/70 hover:bg-rose-400/20 ${deleteBusy ? "cursor-not-allowed opacity-70" : ""
                     }`}
@@ -536,7 +533,80 @@ export default function ListDetailPage() {
                     ...updated,
                   }))
                 }}
-              />
+                />
+            )}
+
+            {deleteConfirmOpen && list && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm"
+                onClick={() => setDeleteConfirmOpen(false)}
+              >
+                <div
+                  className="w-full max-w-md rounded-2xl border border-white/10 bg-[rgb(16,16,22)] p-6 text-sm"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <h2 className="text-lg font-semibold text-white">Delete this list?</h2>
+                  <p className="mt-2 text-white/60">
+                    {list.title} will be permanently removed.
+                  </p>
+                  <div className="mt-5 flex items-center justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setDeleteConfirmOpen(false)}
+                      className="rounded-full border border-white/10 px-4 py-2 text-xs text-white/70 transition hover:border-white/30"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setDeleteConfirmOpen(false)
+                        await handleDelete()
+                      }}
+                      className="rounded-full border border-rose-400/40 bg-rose-400/10 px-4 py-2 text-xs font-semibold text-rose-200 transition hover:border-rose-400/70 hover:bg-rose-400/20"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {removeConfirmTarget && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm"
+                onClick={() => setRemoveConfirmTarget(null)}
+              >
+                <div
+                  className="w-full max-w-md rounded-2xl border border-white/10 bg-[rgb(16,16,22)] p-6 text-sm"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <h2 className="text-lg font-semibold text-white">Remove collaborator?</h2>
+                  <p className="mt-2 text-white/60">
+                    {getDisplayName(removeConfirmTarget.user)} will lose access to this list.
+                  </p>
+                  <div className="mt-5 flex items-center justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setRemoveConfirmTarget(null)}
+                      className="rounded-full border border-white/10 px-4 py-2 text-xs text-white/70 transition hover:border-white/30"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const target = removeConfirmTarget
+                        setRemoveConfirmTarget(null)
+                        if (target) await handleRemoveContributor(target)
+                      }}
+                      className="rounded-full border border-rose-400/40 bg-rose-400/10 px-4 py-2 text-xs font-semibold text-rose-200 transition hover:border-rose-400/70 hover:bg-rose-400/20"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
 
             <section className="grid gap-6 lg:grid-cols-[1fr_320px]">
@@ -745,7 +815,7 @@ export default function ListDetailPage() {
                           {isOwner && contributor.role !== "OWNER" && (
                             <button
                               type="button"
-                              onClick={() => handleRemoveContributor(contributor)}
+                              onClick={() => setRemoveConfirmTarget(contributor)}
                               disabled={removeBusyId === contributor.id}
                               className={`flex items-center gap-1 rounded-full border border-rose-400/40 bg-rose-400/10 px-3 py-1 text-xs font-semibold text-rose-200 transition hover:border-rose-400/70 hover:bg-rose-400/20 ${removeBusyId === contributor.id ? "cursor-not-allowed opacity-70" : ""
                                 }`}

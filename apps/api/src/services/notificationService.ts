@@ -287,6 +287,15 @@ class NotificationService {
     })
     return { success: true, updated: result.count }
   }
+
+  async clearAll(userId: string) {
+    const result = await prisma.notification.deleteMany({
+      where: {
+        recipientId: userId,
+      },
+    })
+    return { success: true, deleted: result.count }
+  }
 }
 
 export const notificationService = new NotificationService()

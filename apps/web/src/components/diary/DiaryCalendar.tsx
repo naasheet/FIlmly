@@ -13,7 +13,6 @@ export type CalendarEntry = {
     filmTitle: string
     filmPoster: string | null
     mood: string | null
-    rating: number | null
 }
 
 export type CalendarData = Record<string, CalendarEntry[]>
@@ -279,11 +278,6 @@ export default function DiaryCalendar({
                                                             {entry.filmTitle}
                                                         </p>
                                                         <div className="flex items-center gap-2">
-                                                            {entry.rating && (
-                                                                <span className="text-[10px] text-amber-400">
-                                                                    ★ {entry.rating.toFixed(1)}
-                                                                </span>
-                                                            )}
                                                             {entry.mood && (
                                                                 <MoodBadge mood={entry.mood} showLabel={false} size="sm" />
                                                             )}

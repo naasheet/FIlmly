@@ -14,6 +14,7 @@ type ReviewItem = {
   id: string
   userId: string
   user?: ReviewUser
+  title?: string | null
   rating: number
   comment?: string | null
   createdAt?: string
@@ -258,6 +259,7 @@ export default function ReviewList({ filmId, refreshKey, onReviewDeleted }: Revi
               review={{
                 id: review.id,
                 user: review.user ?? { id: review.userId },
+                title: review.title,
                 rating: review.rating,
                 comment: review.comment,
                 createdAt: review.createdAt,

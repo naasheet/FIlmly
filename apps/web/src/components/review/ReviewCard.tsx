@@ -15,6 +15,7 @@ type ReviewCardProps = {
   review: {
     id: string
     user: ReviewUser
+    title?: string | null
     rating: number
     comment?: string | null
     createdAt?: string
@@ -190,6 +191,14 @@ export default function ReviewCard({
       </div>
 
       <div className="space-y-2">
+        {review.title && (
+          <p className="text-base font-semibold text-white">{review.title}</p>
+        )}
+        {review.rewatch && (
+          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-200">
+            Rewatch
+          </p>
+        )}
         {review.containsSpoilers && !showSpoilers && (
           <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs text-amber-200">
             Spoilers hidden.{" "}

@@ -18,7 +18,12 @@ export type DiaryEntryData = {
     }
     watchedDate: string
     mood?: string | null
-    rating?: number | null
+    expectedRating?: number | null
+    expectedNote?: string | null
+    actualRating?: number | null
+    actualNote?: string | null
+    rewatchability?: string | null
+    rewatchabilityWhy?: string | null
     location?: string | null
     venue?: string | null
     format?: string | null
@@ -160,14 +165,6 @@ export default function DiaryEntry({
                     )}
                 </div>
 
-                {/* Rating */}
-                {entry.rating && (
-                    <div className="text-right">
-                        <span className="text-lg font-bold text-amber-400">
-                            {entry.rating.toFixed(1)}
-                        </span>
-                    </div>
-                )}
             </Link>
         )
     }
@@ -271,11 +268,6 @@ export default function DiaryEntry({
                                 <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1">
                                     <Tv className="h-3 w-3" />
                                     {formatLabel}
-                                </span>
-                            )}
-                            {entry.rating !== null && entry.rating !== undefined && (
-                                <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-1 text-amber-200">
-                                    {entry.rating.toFixed(1)} / 10
                                 </span>
                             )}
                             {entry.linkToReview && (
@@ -409,13 +401,6 @@ export default function DiaryEntry({
 
                     {/* Meta Row */}
                     <div className="flex flex-wrap items-center gap-2 text-xs">
-                        {/* Rating */}
-                        {entry.rating && (
-                            <span className="flex items-center gap-1 rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 font-medium text-amber-300">
-                                ★ {entry.rating.toFixed(1)}
-                            </span>
-                        )}
-
                         {/* Location */}
                         {locationLabel && (
                             <span className="flex items-center gap-1 text-white/50">
@@ -489,7 +474,6 @@ type DiaryDayProps = {
         filmTitle: string
         filmPoster: string | null
         mood: string | null
-        rating: number | null
     }>
     onSelect?: (date: string, entries: DiaryDayProps["entries"]) => void
 }

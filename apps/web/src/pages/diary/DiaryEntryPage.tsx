@@ -4,6 +4,7 @@ import { useParams, useNavigate, Link } from "react-router-dom"
 import Header from "../../components/layout/Header"
 import { getDiaryEntry } from "../../services/diaryService"
 import { resolvePosterUrl } from "../../utils/image"
+import RatingStars from "../../components/ui/RatingStars"
 
 type DiaryEntryDetail = {
     id: string
@@ -16,7 +17,12 @@ type DiaryEntryDetail = {
     }
     watchedDate: string
     mood?: string | null
-    rating?: number | null
+    expectedRating?: number | null
+    expectedNote?: string | null
+    actualRating?: number | null
+    actualNote?: string | null
+    rewatchability?: string | null
+    rewatchabilityWhy?: string | null
     location?: string | null
     venue?: string | null
     format?: string | null
@@ -95,55 +101,142 @@ export default function DiaryEntryPage() {
                                     <h1 className="font-['Outfit'] text-2xl font-semibold text-white">
                                         {entry.film.title}
                                     </h1>
-                                    <p className="mt-1 text-sm text-white/50">
-                                        Watched on{" "}
-                                        {new Date(entry.watchedDate).toLocaleDateString("en-US", {
-                                            weekday: "long",
-                                            month: "long",
-                                            day: "numeric",
-                                            year: "numeric",
-                                        })}
-                                    </p>
                                 </div>
 
                                 <div className="grid gap-4 sm:grid-cols-2">
-                                    {entry.rating !== null && entry.rating !== undefined && (
-                                        <div>
-                                            <p className="text-xs uppercase tracking-wider text-white/40">
-                                                Rating
-                                            </p>
-                                            <p className="mt-1 text-amber-300">
-                                                {entry.rating.toFixed(1)}
-                                            </p>
-                                        </div>
-                                    )}
-                                    {entry.mood && (
-                                        <div>
-                                            <p className="text-xs uppercase tracking-wider text-white/40">
-                                                Mood
-                                            </p>
-                                            <p className="mt-1 text-white">{formatLabel(entry.mood)}</p>
-                                        </div>
-                                    )}
-                                    {(entry.location || entry.venue) && (
-                                        <div>
-                                            <p className="text-xs uppercase tracking-wider text-white/40">
-                                                Location
-                                            </p>
-                                            <p className="mt-1 text-white">
-                                                {entry.venue ?? formatLabel(entry.location ?? "")}
-                                            </p>
-                                        </div>
-                                    )}
-                                    {entry.format && (
-                                        <div>
-                                            <p className="text-xs uppercase tracking-wider text-white/40">
-                                                Format
-                                            </p>
-                                            <p className="mt-1 text-white">{entry.format}</p>
-                                        </div>
-                                    )}
+                                    <div>
+                                        <p className="text-xs uppercase tracking-wider text-white/40">
+                                            Watched date
+                                        </p>
+                                        <p className="mt-1 text-white">
+                                            {new Date(entry.watchedDate).toLocaleDateString("en-US", {
+                                                weekday: "long",
+                                                month: "long",
+                                                day: "numeric",
+                                                year: "numeric",
+                                            })}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs uppercase tracking-wider text-white/40">
+                                            Location
+                                        </p>
+                                        <p className="mt-1 text-white">
+                                            {(entry.venue ?? formatLabel(entry.location ?? "")) || "-"}
+                                        </p>
+                                    </div>
                                 </div>
+
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <p className="text-xs uppercase tracking-wider text-white/40">
+                                            Format
+                                        </p>
+                                        <p className="mt-1 text-white">
+                                            {entry.format ? formatLabel(entry.format) : "-"}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs uppercase tracking-wider text-white/40">
+                                            Mood
+                                        </p>
+                                        <p className="mt-1 text-white">
+                                            {entry.mood ? formatLabel(entry.mood) : "-"}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <p className="text-xs uppercase tracking-wider text-white/40">
+                                        Vibes
+                                    </p>
+                                    <p className="mt-1 text-white">
+                                        {entry.vibes && entry.vibes.length > 0 ? entry.vibes.join(", ") : "-"}
+                                    </p>
+                                </div>
+
+                                {(entry.expectedRating !== null && entry.expectedRating !== undefined) ||
+                                (entry.actualRating !== null && entry.actualRating !== undefined) ||
+                                entry.expectedNote ||
+                                entry.actualNote ? (
+                                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                        <p className="text-xs uppercase tracking-wider text-white/40">
+                                            Expectation vs Reality
+                                        </p>
+                                        <div className="mt-3 grid gap-4 sm:grid-cols-2">
+                                            <div>
+                                                <p className="text-[11px] uppercase tracking-wider text-white/40">
+                                                    Expected
+                                                </p>
+                                                <div className="mt-1 flex flex-wrap items-center gap-2">
+                                                    <RatingStars
+                                                        value={entry.expectedRating ?? 0}
+                                                        readOnly={true}
+                                                        step={0.5}
+                                                        size="sm"
+                                                        label="Expected rating"
+                                                    />
+                                                    <span className="text-xs text-amber-300">
+                                                        {entry.expectedRating ? entry.expectedRating.toFixed(1) : "-"}
+                                                    </span>
+                                                    {entry.expectedNote && (
+                                                        <span className="text-xs text-white/60">
+                                                            ({entry.expectedNote})
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p className="text-[11px] uppercase tracking-wider text-white/40">
+                                                    Actually
+                                                </p>
+                                                <div className="mt-1 flex flex-wrap items-center gap-2">
+                                                    <RatingStars
+                                                        value={entry.actualRating ?? 0}
+                                                        readOnly={true}
+                                                        step={0.5}
+                                                        size="sm"
+                                                        label="Actual rating"
+                                                    />
+                                                    <span className="text-xs text-amber-300">
+                                                        {entry.actualRating ? entry.actualRating.toFixed(1) : "-"}
+                                                    </span>
+                                                    {entry.actualNote && (
+                                                        <span className="text-xs text-white/60">
+                                                            ({entry.actualNote})
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : null}
+
+                                {(entry.rewatchability || entry.rewatchabilityWhy) && (
+                                    <div>
+                                        <p className="text-xs uppercase tracking-wider text-white/40">
+                                            Rewatchability
+                                        </p>
+                                        <p className="mt-1 text-white">
+                                            {(() => {
+                                                const labelMap: Record<string, string> = {
+                                                    one_time: "❄️ One time",
+                                                    maybe: "Maybe",
+                                                    definitely: "Definitely",
+                                                    infinite: "♾️ Infinite",
+                                                }
+                                                return entry.rewatchability
+                                                    ? labelMap[entry.rewatchability] || entry.rewatchability
+                                                    : "-"
+                                            })()}
+                                        </p>
+                                        {entry.rewatchabilityWhy && (
+                                            <p className="mt-2 text-sm text-white/60">
+                                                {entry.rewatchabilityWhy}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
 
                                 {entry.companions && entry.companions.length > 0 && (
                                     <div>
@@ -161,17 +254,6 @@ export default function DiaryEntryPage() {
                                                 </Link>
                                             ))}
                                         </div>
-                                    </div>
-                                )}
-
-                                {entry.vibes && entry.vibes.length > 0 && (
-                                    <div>
-                                        <p className="text-xs uppercase tracking-wider text-white/40">
-                                            Vibes
-                                        </p>
-                                        <p className="mt-1 text-white">
-                                            {entry.vibes.join(", ")}
-                                        </p>
                                     </div>
                                 )}
 

@@ -6,6 +6,7 @@ const prisma = new PrismaClient()
 type CreateReviewInput = {
   userId: string
   filmId: number
+  title: string
   rating: number
   comment?: string | null
   containsSpoilers?: boolean
@@ -14,6 +15,7 @@ type CreateReviewInput = {
 }
 
 type UpdateReviewInput = {
+  title?: string | null
   rating?: number
   comment?: string | null
   containsSpoilers?: boolean
@@ -47,6 +49,7 @@ function buildOrderBy(sortBy: SortBy) {
 
 async function createReviewVersion(
   reviewId: string,
+  title: string | null,
   rating: number,
   comment?: string | null,
   containsSpoilers?: boolean,
@@ -56,6 +59,7 @@ async function createReviewVersion(
   return prisma.reviewVersion.create({
     data: {
       reviewId,
+      title,
       rating,
       comment: comment ?? null,
       containsSpoilers: Boolean(containsSpoilers),
@@ -72,6 +76,7 @@ export async function createReview(data: CreateReviewInput) {
       data: {
         userId: data.userId,
         filmId: data.filmId,
+        title: data.title,
         rating: data.rating,
         comment: data.comment ?? null,
         containsSpoilers: Boolean(data.containsSpoilers),
@@ -88,6 +93,7 @@ export async function createReview(data: CreateReviewInput) {
 
   await createReviewVersion(
     review.id,
+    review.title,
     review.rating,
     review.comment,
     review.containsSpoilers,
@@ -109,6 +115,7 @@ export async function updateReview(id: string, data: UpdateReviewInput) {
   const updated = await prisma.review.update({
     where: { id },
     data: {
+      title: data.title ?? existing.title,
       rating: data.rating ?? existing.rating,
       comment: data.comment ?? existing.comment,
       containsSpoilers: data.containsSpoilers ?? existing.containsSpoilers,
@@ -124,6 +131,7 @@ export async function updateReview(id: string, data: UpdateReviewInput) {
 
   await createReviewVersion(
     updated.id,
+    updated.title,
     updated.rating,
     updated.comment,
     updated.containsSpoilers,

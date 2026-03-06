@@ -20,6 +20,7 @@ import {
   toggleWatchedHandler,
   linkSupabaseHandler,
   getWatchedStatusesHandler,
+  getMyStatsHandler,
 } from "../controllers/userController"
 import {
   listByUsernameHandler,
@@ -36,6 +37,7 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 *
 
 router.post("/me/avatar", authenticate, upload.single("avatar"), uploadAvatarHandler)
 router.get("/me", authenticate, getMeHandler)
+router.get("/me/stats", authenticate, getMyStatsHandler)
 router.get("/me/lists", authenticate, getMyListsHandler)
 router.patch("/me", authenticate, updateMeHandler)
 router.patch("/me/supabase", authenticate, linkSupabaseHandler)

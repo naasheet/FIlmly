@@ -25,6 +25,7 @@ function handleValidation(req: Request, res: Response) {
 
 export const createValidation = [
   body("filmId").isInt({ min: 1 }).toInt(),
+  body("title").isString().trim().isLength({ min: 1, max: 120 }),
   body("rating").isFloat({ min: 0.5, max: 5 }).toFloat(),
   body("comment").optional().isString().isLength({ max: 2000 }),
   body("containsSpoilers").optional().isBoolean().toBoolean(),
@@ -34,6 +35,7 @@ export const createValidation = [
 
 export const updateValidation = [
   param("id").isString().isLength({ min: 6 }),
+  body("title").optional().isString().trim().isLength({ min: 1, max: 120 }),
   body("rating").optional().isFloat({ min: 0.5, max: 5 }).toFloat(),
   body("comment").optional().isString().isLength({ max: 2000 }),
   body("containsSpoilers").optional().isBoolean().toBoolean(),
@@ -76,10 +78,11 @@ export const createHandler: Handler = async (req, res) => {
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" })
     }
-    const { filmId, rating, comment } = req.body
+    const { filmId, rating, comment, title } = req.body
     const result = await createReview({
       userId,
       filmId: Number(filmId),
+      title: String(title).trim(),
       rating: Number(rating),
       comment,
       containsSpoilers: req.body.containsSpoilers,
@@ -103,6 +106,7 @@ export const updateHandler: Handler = async (req, res) => {
   try {
     const reviewId = String(req.params.id)
     const result = await updateReview(reviewId, {
+      title: req.body.title,
       rating: req.body.rating,
       comment: req.body.comment,
       containsSpoilers: req.body.containsSpoilers,

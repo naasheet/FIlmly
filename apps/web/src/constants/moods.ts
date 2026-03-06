@@ -122,6 +122,17 @@ export const MOODS: Record<MoodType, MoodConfig> = {
 /** Get all moods as an array */
 export const MOOD_LIST: MoodConfig[] = Object.values(MOODS)
 
+// Primary moods shown in the diary form (exactly 5 choices)
+export const MOOD_PRIMARY: MoodType[] = [
+    "joyful",
+    "melancholic",
+    "anxious",
+    "inspired",
+    "nostalgic",
+]
+
+export const MOOD_PRIMARY_LIST: MoodConfig[] = MOOD_PRIMARY.map((id) => MOODS[id])
+
 /** Get mood config by id, returns undefined if not found */
 export function getMood(id: string | null | undefined): MoodConfig | undefined {
     if (!id) return undefined

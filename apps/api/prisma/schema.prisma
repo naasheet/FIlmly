@@ -182,6 +182,7 @@ model Person {
 
 model Review {
   id               String          @id @default(cuid())
+  title            String
   rating           Float
   comment          String?
   containsSpoilers Boolean         @default(false)
@@ -262,6 +263,7 @@ model WatchlistItem {
 model ReviewVersion {
   id               String    @id @default(cuid())
   reviewId         String
+  title            String
   rating           Float
   comment          String?
   containsSpoilers Boolean   @default(false)
@@ -341,8 +343,15 @@ model DiaryEntry {
   watchedDate DateTime @default(now())
 
   // Mood & Feelings
-  mood   String? // e.g., "happy", "sad", "inspired", "nostalgic", "anxious", "relaxed"
-  rating Float? // Personal rating for this viewing
+  mood String? // e.g., "happy", "sad", "inspired", "nostalgic", "anxious", "relaxed"
+
+  // Expectation vs Reality
+  expectedRating Float? // Anticipation rating before watching (0-5)
+  expectedNote   String? // Short descriptor like "hyped!"
+  actualRating   Float? // How it actually felt (0-5)
+  actualNote     String? // Short descriptor like "good but overhyped"
+  rewatchability String? // One time, maybe, definitely, infinite
+  rewatchabilityWhy String? // Why that rewatchability
 
   // Viewing Context
   location String? // e.g., "Home", "Cinema", "Friend's place"

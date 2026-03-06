@@ -243,7 +243,7 @@ export default function CreateListModal({ onClose }: CreateListModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-      <div className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-[rgb(18,18,24)] p-6 shadow-2xl">
+      <div className="relative w-full max-h-[85vh] max-w-2xl overflow-y-auto rounded-3xl border border-white/10 bg-[rgb(18,18,24)] p-6 shadow-2xl">
         <button
           type="button"
           onClick={onClose}

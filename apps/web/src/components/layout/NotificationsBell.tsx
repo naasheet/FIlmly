@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react"
 import { useNavigate } from "react-router-dom"
-import { Bell, CheckCheck, Loader2 } from "lucide-react"
+import { Bell, Loader2, Trash2 } from "lucide-react"
 import {
   getNotifications,
   getUnreadNotificationCount,
-  markAllNotificationsAsRead,
+  clearAllNotifications,
   markNotificationAsRead,
   type NotificationItem,
 } from "../../services/notificationApi"
@@ -54,7 +54,7 @@ export default function NotificationsBell({ compact = false }: NotificationsBell
   const menuRef = useRef<HTMLDivElement | null>(null)
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [markAllBusy, setMarkAllBusy] = useState(false)
+  const [clearAllBusy, setClearAllBusy] = useState(false)
   const [actionBusyId, setActionBusyId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [items, setItems] = useState<NotificationItem[]>([])
@@ -143,33 +143,23 @@ export default function NotificationsBell({ compact = false }: NotificationsBell
     }
   }
 
-  const handleMarkAllRead = async () => {
-    if (markAllBusy || unreadCount <= 0) return
-    setMarkAllBusy(true)
+  const handleClearAll = async () => {
+    if (clearAllBusy || items.length === 0) return
+    setClearAllBusy(true)
     setError(null)
 
     const previous = items
-    setItems((prev) =>
-      prev.map((item) =>
-        item.isRead
-          ? item
-          : {
-              ...item,
-              isRead: true,
-              readAt: new Date().toISOString(),
-            }
-      )
-    )
+    setItems([])
     setUnreadCount(0)
 
     try {
-      await markAllNotificationsAsRead()
+      await clearAllNotifications()
     } catch (err: any) {
       setItems(previous)
       setUnreadCount(previous.filter((item) => !item.isRead).length)
-      setError(err?.message ?? "Failed to mark all notifications as read.")
+      setError(err?.message ?? "Failed to clear notifications.")
     } finally {
-      setMarkAllBusy(false)
+      setClearAllBusy(false)
     }
   }
 
@@ -204,8 +194,8 @@ export default function NotificationsBell({ compact = false }: NotificationsBell
   }
 
   const buttonClass = compact
-    ? "relative flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-200 transition-all duration-300 hover:border-amber-400/30 hover:bg-white/10"
-    : "relative flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition-all duration-300 hover:border-amber-400/30 hover:bg-white/10"
+    ? "relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-200 transition-all duration-300 hover:border-amber-400/30 hover:bg-white/10"
+    : "relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition-all duration-300 hover:border-amber-400/30 hover:bg-white/10"
 
   return (
     <div className="relative" ref={menuRef}>
@@ -239,16 +229,16 @@ export default function NotificationsBell({ compact = false }: NotificationsBell
           </div>
           <button
             type="button"
-            onClick={handleMarkAllRead}
-            disabled={markAllBusy || unreadCount <= 0}
+            onClick={handleClearAll}
+            disabled={clearAllBusy || items.length === 0}
             className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${
-              markAllBusy || unreadCount <= 0
+              clearAllBusy || items.length === 0
                 ? "cursor-not-allowed border-white/10 bg-white/5 text-white/30"
-                : "border-amber-400/30 bg-amber-400/10 text-amber-200 hover:border-amber-400/60 hover:bg-amber-400/20"
+                : "cursor-pointer border-rose-400/30 bg-rose-400/10 text-rose-200 hover:border-rose-400/60 hover:bg-rose-400/20"
             }`}
           >
-            {markAllBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCheck className="h-3 w-3" />}
-            Mark all
+            {clearAllBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+            Clear all
           </button>
         </div>
 

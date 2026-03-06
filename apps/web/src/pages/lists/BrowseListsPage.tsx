@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react"
-import { useSearchParams } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { usePageTitle } from "../../hooks/usePageTitle"
 import { ChevronDown, Filter, Search, X } from "lucide-react"
 import Header from "../../components/layout/Header"
 import ListGrid from "../../components/lists/ListGrid"
 import { fetchPopularTags, searchLists } from "../../services/listApi"
 import type { List } from "../../stores/listStore"
+import { useAuthStore } from "../../stores/authStore"
 
 type Filters = {
   query: string
@@ -33,6 +34,8 @@ function activeFilterCount(filters: Filters) {
 
 export default function BrowseListsPage() {
   usePageTitle("Browse Lists")
+  const navigate = useNavigate()
+  const user = useAuthStore((state) => state.user)
   const [searchParams, setSearchParams] = useSearchParams()
   const [lists, setLists] = useState<List[]>([])
   const [loading, setLoading] = useState(true)
@@ -190,10 +193,23 @@ export default function BrowseListsPage() {
       <Header />
       <main className="mx-auto w-full max-w-6xl px-6 py-10">
         <div className="mb-6">
-          <h1 className="font-['Outfit'] text-3xl font-semibold text-white">Explore Lists</h1>
-          <p className="mt-1 text-sm text-white/60">
-            Discover curated film lists from the community.
-          </p>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h1 className="font-['Outfit'] text-3xl font-semibold text-white">Explore Lists</h1>
+              <p className="mt-1 text-sm text-white/60">
+                Discover curated film lists from the community.
+              </p>
+            </div>
+            {user && (
+              <button
+                type="button"
+                onClick={() => navigate("/me/lists")}
+                className="rounded-full border border-amber-400/50 bg-amber-400/20 px-4 py-2 text-sm font-semibold text-amber-200 transition hover:border-amber-400/80 hover:bg-amber-400/30"
+              >
+                My Lists
+              </button>
+            )}
+          </div>
           <div className="mt-5">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />

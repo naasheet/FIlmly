@@ -10,6 +10,8 @@ import crypto from "node:crypto"
 import { env } from "../config/env"
 import { canUserEditList, canUserViewList, isListOwner } from "../utils/listPermissions"
 import { updateListStats } from "../utils/listStats"
+import { cacheFilm } from "./filmService"
+import { getFilmDetails as tmdbGetFilmDetails } from "./tmdbService"
 
 const prisma = new PrismaClient()
 
@@ -105,6 +107,14 @@ function slugifyTitle(title: string) {
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
   return slug || "list"
+}
+
+async function ensureFilmCached(filmId: number) {
+  const existingFilm = await prisma.film.findUnique({ where: { id: filmId } })
+  if (!existingFilm) {
+    const details = await tmdbGetFilmDetails(filmId)
+    await cacheFilm(details)
+  }
 }
 
 async function generateUniqueSlug(title: string) {
@@ -738,6 +748,8 @@ class ListService {
     rank?: number,
     notes?: string | null
   ) {
+    await ensureFilmCached(filmId)
+
     if (!(await canUserEditList(listId, userId))) {
       throw new Error("Unauthorized")
     }
@@ -804,6 +816,8 @@ class ListService {
     if (!listIds.length) {
       return { added: [], skipped: [], unauthorized: [] }
     }
+
+    await ensureFilmCached(filmId)
 
     const contributors = await prisma.listContributor.findMany({
       where: { userId, listId: { in: listIds } },

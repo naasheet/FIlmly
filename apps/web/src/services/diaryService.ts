@@ -9,7 +9,12 @@ export type CreateDiaryEntryInput = {
     filmId: number
     watchedDate?: string
     mood?: string | null
-    rating?: number | null
+    expectedRating?: number | null
+    expectedNote?: string | null
+    actualRating?: number | null
+    actualNote?: string | null
+    rewatchability?: string | null
+    rewatchabilityWhy?: string | null
     location?: string | null
     venue?: string | null
     format?: string | null
@@ -53,7 +58,6 @@ export type DiaryCalendarResponse = {
             filmTitle: string
             filmPoster: string | null
             mood: string | null
-            rating: number | null
         }>
     >
 }
@@ -63,7 +67,6 @@ export type DiaryStatsResponse = {
     moodDistribution: Record<string, number>
     formatDistribution: Record<string, number>
     locationDistribution: Record<string, number>
-    averageRating: number | null
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

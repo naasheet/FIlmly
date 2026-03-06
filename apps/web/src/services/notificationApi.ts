@@ -79,3 +79,8 @@ export async function markAllNotificationsAsRead() {
   const response = await api.post<{ success: boolean; updated: number }>("/notifications/read-all")
   return response.data
 }
+
+export async function clearAllNotifications() {
+  const response = await api.post<{ success: boolean; deleted: number }>("/notifications/clear-all")
+  return response.data
+}

@@ -63,6 +63,7 @@ type Rating = {
 type Review = {
   id: string
   userId: string
+  title?: string | null
   rating: number
 }
 
@@ -391,6 +392,7 @@ export default function FilmPage() {
   }
 
   const handleReviewSubmit = async (values: {
+    title: string
     rating: number
     comment: string
     containsSpoilers: boolean
@@ -400,6 +402,7 @@ export default function FilmPage() {
     if (!user || !filmId) return
     const res = await api.post("/reviews", {
       filmId,
+      title: values.title,
       rating: values.rating,
       comment: values.comment,
       containsSpoilers: values.containsSpoilers,

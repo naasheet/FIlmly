@@ -5,8 +5,17 @@ import FilmCard from "../../components/film/FilmCard"
 import HeroSpotlight from "../../components/home/HeroSpotlight"
 import { getTrendingFilms } from "../../services/filmService"
 import { useAuthStore } from "../../stores/authStore"
-import { Star, Bookmark, Eye } from "lucide-react"
 import api from "../../services/api"
+import AchievementCard from "../../components/home/AchievementCard"
+import WatchlistCard from "../../components/home/WatchlistCard"
+import AchievementModal from "../../components/home/AchievementModal"
+import AchievementEmptyState from "../../components/home/AchievementEmptyState"
+import {
+  WATCHED_TIERS,
+  REVIEW_TIERS,
+  calculateWatchedLevel,
+  calculateReviewLevel,
+} from "../../constants/achievements"
 
 type Film = {
   id: number
@@ -31,6 +40,10 @@ export default function HomePage() {
   const [trendingLoading, setTrendingLoading] = useState(false)
   const [moreVisibleCount, setMoreVisibleCount] = useState(4)
   const lastStatsFetchRef = useRef<{ userId: string; at: number } | null>(null)
+  const [achievementModal, setAchievementModal] = useState<"watched" | "reviews" | null>(null)
+
+  const watchedProgress = useMemo(() => calculateWatchedLevel(stats.watched), [stats.watched])
+  const reviewProgress = useMemo(() => calculateReviewLevel(stats.reviews), [stats.reviews])
 
   useEffect(() => {
     let active = true
@@ -132,10 +145,42 @@ export default function HomePage() {
       ) {
         return
       }
-      lastStatsFetchRef.current = { userId, at: now }
+
+      const commitStats = (nextStats: { watched: number; watchlist: number; reviews: number }) => {
+        if (!active) return
+        setStats(nextStats)
+        lastStatsFetchRef.current = { userId, at: Date.now() }
+      }
+
+      const username = user?.username
 
       try {
-        const username = user?.username
+        const statsRes = await api.get("/users/me/stats")
+        commitStats({
+          watched: Number(statsRes.data?.watchedCount ?? 0),
+          watchlist: Number(statsRes.data?.watchlistItemCount ?? 0),
+          reviews: Number(statsRes.data?.reviewCount ?? 0),
+        })
+        return
+      } catch {
+        // fall back to username or legacy endpoints
+      }
+
+      if (username) {
+        try {
+          const statsRes = await api.get(`/users/${username}/stats`)
+          commitStats({
+            watched: Number(statsRes.data?.watchedCount ?? 0),
+            watchlist: Number(statsRes.data?.watchlistItemCount ?? 0),
+            reviews: Number(statsRes.data?.reviewCount ?? 0),
+          })
+          return
+        } catch {
+          // fall back to legacy endpoints below
+        }
+      }
+
+      try {
         const [watchlistRes, reviewsRes, watchedRes] = await Promise.all([
           api.get("/watchlist/default").catch(() => ({ data: { items: [] } })),
           api.get("/reviews/me").catch(() => ({ data: [] })),
@@ -143,8 +188,7 @@ export default function HomePage() {
             ? api.get(`/users/${username}/watched`).catch(() => ({ data: [] }))
             : Promise.resolve({ data: [] }),
         ])
-        if (!active) return
-        setStats({
+        commitStats({
           watched: Array.isArray(watchedRes.data) ? watchedRes.data.length : 0,
           watchlist: watchlistRes.data?.items?.length ?? 0,
           reviews: reviewsRes.data?.length ?? 0,
@@ -228,12 +272,12 @@ export default function HomePage() {
     <div className="min-h-screen bg-[rgb(8,8,12)]">
       <Header />
 
-      <main className="mx-auto max-w-6xl px-6 py-12">
+      <main className="mx-auto max-w-6xl px-6 py-12 animate-fade-in">
         {/* Featured + Stats Grid */}
         <section className="mb-16">
-          <div className="grid gap-4 md:grid-cols-3 md:grid-rows-2">
+          <div className="grid gap-4 md:grid-cols-3 md:items-stretch">
             {spotlightFilms.length > 0 && (
-              <div className="group relative row-span-2 overflow-hidden rounded-3xl border border-white/10 bg-[rgb(18,18,24)] md:col-span-2">
+              <div className="group relative h-full min-h-[420px] overflow-hidden rounded-3xl border border-white/10 bg-[rgb(18,18,24)] md:col-span-2 md:min-h-[520px]">
                 <HeroSpotlight
                   films={spotlightFilms.map((film) => ({
                     id: film.id,
@@ -244,37 +288,50 @@ export default function HomePage() {
                     releaseDate: film.releaseDate,
                     rating: film.rating,
                   }))}
+                  contentAlign={user ? "end" : "center"}
                 />
               </div>
             )}
 
             {user && (
-              <div className="rounded-3xl border border-white/10 bg-[rgb(18,18,24)] p-6">
-                <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-white/50">Your Stats</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2 text-sm text-white/70">
-                      <Eye className="h-4 w-4" />
-                      Watched
-                    </span>
-                    <span className="font-['Outfit'] text-2xl font-bold text-white">{stats.watched}</span>
+              <div className="h-full rounded-3xl border border-white/10 bg-[rgb(18,18,24)] p-5">
+                <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-white/50">
+                  {stats.watched === 0 && stats.reviews === 0 && stats.watchlist === 0
+                    ? "Your Achievement Journey"
+                    : "Your Achievements"}
+                </h3>
+
+                {stats.watched === 0 && stats.reviews === 0 && stats.watchlist === 0 ? (
+                  <AchievementEmptyState />
+                ) : (
+                  <div className="achievement-scroll-container">
+                    <AchievementCard
+                      kind="watched"
+                      progress={watchedProgress}
+                      tiers={WATCHED_TIERS}
+                      step={50}
+                      onOpenModal={() => setAchievementModal("watched")}
+                    />
+                    <AchievementCard
+                      kind="reviews"
+                      progress={reviewProgress}
+                      tiers={REVIEW_TIERS}
+                      step={20}
+                      onOpenModal={() => setAchievementModal("reviews")}
+                    />
+                    <WatchlistCard count={stats.watchlist} />
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2 text-sm text-white/70">
-                      <Bookmark className="h-4 w-4" />
-                      Watchlist
-                    </span>
-                    <span className="font-['Outfit'] text-2xl font-bold text-white">{stats.watchlist}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2 text-sm text-white/70">
-                      <Star className="h-4 w-4" />
-                      Reviews
-                    </span>
-                    <span className="font-['Outfit'] text-2xl font-bold text-white">{stats.reviews}</span>
-                  </div>
-                </div>
+                )}
               </div>
+            )}
+
+            {achievementModal && (
+              <AchievementModal
+                kind={achievementModal}
+                progress={achievementModal === "watched" ? watchedProgress : reviewProgress}
+                tiers={achievementModal === "watched" ? WATCHED_TIERS : REVIEW_TIERS}
+                onClose={() => setAchievementModal(null)}
+              />
             )}
 
           </div>
@@ -305,14 +362,19 @@ export default function HomePage() {
                   )
                 }
                 return (
-                  <FilmCard
+                  <div
                     key={film.id}
-                    id={film.id}
-                    title={film.title}
-                    releaseDate={film.releaseDate}
-                    posterPath={film.posterPath}
-                    rating={film.rating}
-                  />
+                    className="animate-fade-up"
+                    style={{ animationDelay: `${i * 0.14}s` }}
+                  >
+                    <FilmCard
+                      id={film.id}
+                      title={film.title}
+                      releaseDate={film.releaseDate}
+                      posterPath={film.posterPath}
+                      rating={film.rating}
+                    />
+                  </div>
                 )
               })}
           </div>
@@ -335,15 +397,20 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {trending.slice(1, 9).map((film) => (
-                <FilmCard
+              {trending.slice(1, 9).map((film, index) => (
+                <div
                   key={film.id}
-                  id={film.id}
-                  title={film.title}
-                  releaseDate={film.releaseDate}
-                  posterPath={film.posterPath}
-                  rating={film.rating}
-                />
+                  className="animate-fade-up"
+                  style={{ animationDelay: `${index * 0.14}s` }}
+                >
+                  <FilmCard
+                    id={film.id}
+                    title={film.title}
+                    releaseDate={film.releaseDate}
+                    posterPath={film.posterPath}
+                    rating={film.rating}
+                  />
+                </div>
               ))}
             </div>
           )}
@@ -356,15 +423,20 @@ export default function HomePage() {
               <h2 className="font-['Outfit'] text-2xl font-bold text-white">More to Explore</h2>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {moreToExplore.slice(0, moreVisibleCount).map((film: Film) => (
-                <FilmCard
+              {moreToExplore.slice(0, moreVisibleCount).map((film: Film, index) => (
+                <div
                   key={film.id}
-                  id={film.id}
-                  title={film.title}
-                  releaseDate={film.releaseDate}
-                  posterPath={film.posterPath}
-                  rating={film.rating}
-                />
+                  className="animate-fade-up"
+                  style={{ animationDelay: `${index * 0.14}s` }}
+                >
+                  <FilmCard
+                    id={film.id}
+                    title={film.title}
+                    releaseDate={film.releaseDate}
+                    posterPath={film.posterPath}
+                    rating={film.rating}
+                  />
+                </div>
               ))}
             </div>
             {(moreToExplore.length > moreVisibleCount || canLoadMoreTrending) && (
@@ -380,7 +452,7 @@ export default function HomePage() {
                     void handleLoadMoreTrending(nextTarget)
                   }}
                   disabled={trendingLoading}
-                  className="rounded-full border border-white/10 bg-white/5 px-6 py-2 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-full border border-white/10 bg-white/5 px-6 py-2 text-sm font-semibold text-white transition-transform duration-200 hover:scale-[1.05] hover:border-white/30 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {trendingLoading ? "Loading..." : "Show more films"}
                 </button>

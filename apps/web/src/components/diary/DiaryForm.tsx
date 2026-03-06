@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
-import { X, MapPin, Tv, Users, RotateCcw, Link2, Calendar } from "lucide-react"
+import { X, MapPin, Tv, Users, Calendar } from "lucide-react"
 import RatingStars from "../ui/RatingStars"
-import { MOOD_LIST } from "../../constants/moods"
+import { MOOD_LIST, MOOD_PRIMARY_LIST } from "../../constants/moods"
 import api from "../../services/api"
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -11,7 +11,12 @@ import api from "../../services/api"
 export type DiaryFormValues = {
     watchedDate: string
     mood: string | null
-    rating: number | null
+    expectedRating: number | null
+    expectedNote: string | null
+    actualRating: number | null
+    actualNote: string | null
+    rewatchability: string | null
+    rewatchabilityWhy: string | null
     location: string | null
     venue: string | null
     format: string | null
@@ -19,8 +24,6 @@ export type DiaryFormValues = {
     companions: string[]
     notes: string | null
     isPrivate: boolean
-    wouldRewatch: boolean
-    linkToReview: boolean
 }
 
 type DiaryFormProps = {
@@ -28,7 +31,6 @@ type DiaryFormProps = {
     filmTitle: string
     filmPosterPath?: string | null
     initialValues?: Partial<DiaryFormValues>
-    lockRating?: boolean
     onSubmit: (values: DiaryFormValues) => Promise<void> | void
     onCancel?: () => void
     submitLabel?: string
@@ -41,20 +43,13 @@ type DiaryFormProps = {
 const LOCATIONS = [
     { value: "home", label: "🏠 Home" },
     { value: "cinema", label: "🎬 Cinema" },
-    { value: "friends", label: "👥 Friend's Place" },
-    { value: "outdoor", label: "🌳 Outdoor" },
-    { value: "travel", label: "✈️ Travel" },
     { value: "other", label: "📍 Other" },
 ]
 
 const FORMATS = [
     { value: "streaming", label: "📺 Streaming" },
-    { value: "bluray", label: "💿 Blu-ray" },
-    { value: "4k", label: "📀 4K UHD" },
-    { value: "dvd", label: "📀 DVD" },
-    { value: "imax", label: "🎭 IMAX" },
-    { value: "35mm", label: "🎞️ 35mm" },
-    { value: "digital", label: "🖥️ Digital" },
+    { value: "physical", label: "💿 Physical Media" },
+    { value: "theater", label: "🎭 Theater" },
 ]
 
 const SUGGESTED_VIBES = [
@@ -70,7 +65,6 @@ export default function DiaryForm({
     filmTitle,
     filmPosterPath,
     initialValues,
-    lockRating = false,
     onSubmit,
     onCancel,
     submitLabel = "Save Entry",
@@ -79,10 +73,19 @@ export default function DiaryForm({
 
     const [watchedDate, setWatchedDate] = useState(initialValues?.watchedDate ?? today)
     const [mood, setMood] = useState<string | null>(initialValues?.mood ?? null)
-    const [rating, setRating] = useState<number | null>(initialValues?.rating ?? null)
-    const [location, setLocation] = useState<string | null>(initialValues?.location ?? null)
+    const [expectedRating, setExpectedRating] = useState<number | null>(initialValues?.expectedRating ?? null)
+    const [expectedNote, setExpectedNote] = useState(initialValues?.expectedNote ?? "")
+    const [actualRating, setActualRating] = useState<number | null>(initialValues?.actualRating ?? null)
+    const [actualNote, setActualNote] = useState(initialValues?.actualNote ?? "")
+    const [rewatchability, setRewatchability] = useState<string | null>(
+        initialValues?.rewatchability ?? null
+    )
+    const [rewatchabilityWhy, setRewatchabilityWhy] = useState(
+        initialValues?.rewatchabilityWhy ?? ""
+    )
+    const [location, setLocation] = useState<string | null>(initialValues?.location ?? "home")
     const [venue, setVenue] = useState(initialValues?.venue ?? "")
-    const [format, setFormat] = useState<string | null>(initialValues?.format ?? null)
+    const [format, setFormat] = useState<string | null>(initialValues?.format ?? "streaming")
     const [vibes, setVibes] = useState<string[]>(initialValues?.vibes ?? [])
     const [vibeInput, setVibeInput] = useState("")
     const [companions, setCompanions] = useState<string[]>(initialValues?.companions ?? [])
@@ -92,14 +95,17 @@ export default function DiaryForm({
     const [notes, setNotes] = useState(initialValues?.notes ?? "")
     const [moodInput, setMoodInput] = useState("")
     const [isPrivate, setIsPrivate] = useState(initialValues?.isPrivate ?? false)
-    const [wouldRewatch, setWouldRewatch] = useState(initialValues?.wouldRewatch ?? false)
-    const [linkToReview, setLinkToReview] = useState(initialValues?.linkToReview ?? false)
 
     useEffect(() => {
         if (!initialValues) return
         if (initialValues.watchedDate) setWatchedDate(initialValues.watchedDate)
         if (initialValues.mood !== undefined) setMood(initialValues.mood ?? null)
-        if (initialValues.rating !== undefined) setRating(initialValues.rating ?? null)
+        if (initialValues.expectedRating !== undefined) setExpectedRating(initialValues.expectedRating ?? null)
+        if (initialValues.expectedNote !== undefined) setExpectedNote(initialValues.expectedNote ?? "")
+        if (initialValues.actualRating !== undefined) setActualRating(initialValues.actualRating ?? null)
+        if (initialValues.actualNote !== undefined) setActualNote(initialValues.actualNote ?? "")
+        if (initialValues.rewatchability !== undefined) setRewatchability(initialValues.rewatchability ?? null)
+        if (initialValues.rewatchabilityWhy !== undefined) setRewatchabilityWhy(initialValues.rewatchabilityWhy ?? "")
         if (initialValues.location !== undefined) setLocation(initialValues.location ?? null)
         if (initialValues.venue !== undefined) setVenue(initialValues.venue ?? "")
         if (initialValues.format !== undefined) setFormat(initialValues.format ?? null)
@@ -107,9 +113,23 @@ export default function DiaryForm({
         if (initialValues.companions !== undefined) setCompanions(initialValues.companions ?? [])
         if (initialValues.notes !== undefined) setNotes(initialValues.notes ?? "")
         if (initialValues.isPrivate !== undefined) setIsPrivate(Boolean(initialValues.isPrivate))
-        if (initialValues.wouldRewatch !== undefined) setWouldRewatch(Boolean(initialValues.wouldRewatch))
-        if (initialValues.linkToReview !== undefined) setLinkToReview(Boolean(initialValues.linkToReview))
-    }, [initialValues?.rating, initialValues?.watchedDate, initialValues?.mood, initialValues?.location, initialValues?.venue, initialValues?.format, initialValues?.vibes, initialValues?.companions, initialValues?.notes, initialValues?.isPrivate, initialValues?.wouldRewatch, initialValues?.linkToReview])
+    }, [
+        initialValues?.watchedDate,
+        initialValues?.mood,
+        initialValues?.expectedRating,
+        initialValues?.expectedNote,
+        initialValues?.actualRating,
+        initialValues?.actualNote,
+        initialValues?.rewatchability,
+        initialValues?.rewatchabilityWhy,
+        initialValues?.location,
+        initialValues?.venue,
+        initialValues?.format,
+        initialValues?.vibes,
+        initialValues?.companions,
+        initialValues?.notes,
+        initialValues?.isPrivate,
+    ])
 
     useEffect(() => {
         const query = companionInput.trim().replace(/^@/, "")
@@ -186,7 +206,12 @@ export default function DiaryForm({
             await onSubmit({
                 watchedDate,
                 mood,
-                rating,
+                expectedRating,
+                expectedNote: expectedNote.trim() || null,
+                actualRating,
+                actualNote: actualNote.trim() || null,
+                rewatchability,
+                rewatchabilityWhy: rewatchabilityWhy.trim() || null,
                 location,
                 venue: venue.trim() || null,
                 format,
@@ -194,8 +219,6 @@ export default function DiaryForm({
                 companions,
                 notes: notes.trim() || null,
                 isPrivate,
-                wouldRewatch,
-                linkToReview,
             })
         } catch (err: any) {
             setError(err?.message ?? "Unable to save diary entry.")
@@ -229,46 +252,76 @@ export default function DiaryForm({
                 </div>
             </div>
 
-            {/* Date & Rating Row */}
-            <div className="grid gap-4 sm:grid-cols-2">
-                {/* Watched Date */}
-                <div>
-                    <label className="mb-2 flex items-center gap-2 text-sm font-medium text-white/70">
-                        <Calendar className="h-4 w-4" />
-                        Watched Date
-                    </label>
-                    <input
-                        type="date"
-                        value={watchedDate}
-                        onChange={(e) => setWatchedDate(e.target.value)}
-                        max={today}
-                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white outline-none transition focus:border-amber-400/50"
-                    />
+            {/* Watched Date */}
+            <div>
+                <label className="mb-2 flex items-center gap-2 text-sm font-medium text-white/70">
+                    <Calendar className="h-4 w-4" />
+                    Watched Date
+                </label>
+                <input
+                    type="date"
+                    value={watchedDate}
+                    onChange={(e) => setWatchedDate(e.target.value)}
+                    max={today}
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white outline-none transition focus:border-amber-400/50"
+                />
+            </div>
+
+            {/* Expectation vs Reality */}
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <div className="flex flex-col gap-1">
+                    <p className="text-sm font-semibold text-white">Expectation vs Reality</p>
                 </div>
 
-                {/* Rating */}
-                <div>
-                    <label className="mb-2 block text-sm font-medium text-white/70">
-                        Rating (optional)
-                    </label>
-                    <div
-                        className={`flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-2 ${
-                            lockRating ? "cursor-not-allowed opacity-70" : ""
-                        }`}
-                        aria-disabled={lockRating || submitting}
-                    >
-                        <RatingStars
-                            value={rating ?? 0}
-                            onChange={setRating}
-                            readOnly={submitting || lockRating}
-                            step={0.5}
-                            size="sm"
-                            label="Diary rating"
-                        />
-                        <span className="text-sm text-amber-400">
-                            {rating ? rating.toFixed(1) : "—"}
-                        </span>
+                <div className="mt-4 grid gap-4">
+                    <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                        <p className="text-xs uppercase tracking-wider text-white/40">Expected</p>
+                        <div className="mt-2 flex flex-wrap items-center gap-3">
+                            <RatingStars
+                                value={expectedRating ?? 0}
+                                onChange={setExpectedRating}
+                                readOnly={submitting}
+                                step={0.5}
+                                size="sm"
+                                label="Expected rating"
+                            />
+                            <span className="text-xs text-amber-300">
+                                {expectedRating ? expectedRating.toFixed(1) : "-"}
+                            </span>
+                            <input
+                                type="text"
+                                value={expectedNote}
+                                onChange={(e) => setExpectedNote(e.target.value)}
+                                placeholder="hyped!"
+                                className="min-w-[180px] flex-1 rounded-lg border border-white/10 bg-black/20 px-3 py-1.5 text-xs text-white/80 outline-none transition placeholder:text-white/30 focus:border-amber-400/50"
+                            />
+                        </div>
                     </div>
+
+                    <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                        <p className="text-xs uppercase tracking-wider text-white/40">Actually</p>
+                        <div className="mt-2 flex flex-wrap items-center gap-3">
+                            <RatingStars
+                                value={actualRating ?? 0}
+                                onChange={setActualRating}
+                                readOnly={submitting}
+                                step={0.5}
+                                size="sm"
+                                label="Actual rating"
+                            />
+                            <span className="text-xs text-amber-300">
+                                {actualRating ? actualRating.toFixed(1) : "-"}
+                            </span>
+                            <input
+                                type="text"
+                                value={actualNote}
+                                onChange={(e) => setActualNote(e.target.value)}
+                                placeholder="good but overhyped"
+                                className="min-w-[180px] flex-1 rounded-lg border border-white/10 bg-black/20 px-3 py-1.5 text-xs text-white/80 outline-none transition placeholder:text-white/30 focus:border-amber-400/50"
+                            />
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -278,7 +331,7 @@ export default function DiaryForm({
                     How did it make you feel?
                 </label>
                 <div className="flex flex-wrap gap-2">
-                    {MOOD_LIST.map((m) => {
+                    {MOOD_PRIMARY_LIST.map((m) => {
                         const isSelected = mood === m.id
                         return (
                             <button
@@ -294,6 +347,15 @@ export default function DiaryForm({
                             </button>
                         )
                     })}
+                    {mood && !MOOD_LIST.some((m) => m.id === mood) && (
+                        <button
+                            type="button"
+                            onClick={() => setMood(null)}
+                            className="rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-2 text-sm font-medium text-amber-300"
+                        >
+                            {mood}
+                        </button>
+                    )}
                 </div>
                 <div className="mt-3 flex gap-2">
                     <input
@@ -535,6 +597,56 @@ export default function DiaryForm({
                 )}
             </div>
 
+            {/* Rewatchability */}
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <div className="flex flex-col gap-1">
+                    <p className="text-sm font-semibold text-white">Rewatchability</p>
+                </div>
+
+                <div className="mt-4 grid gap-4">
+                    <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                        <p className="text-xs uppercase tracking-wider text-white/40">Temperature</p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                            {[
+                                { value: "one_time", label: "❄️ One time" },
+                                { value: "maybe", label: "Maybe" },
+                                { value: "definitely", label: "Definitely" },
+                                { value: "infinite", label: "♾️ Infinite" },
+                            ].map((option) => {
+                                const isSelected = rewatchability === option.value
+                                return (
+                                    <button
+                                        key={option.value}
+                                        type="button"
+                                        onClick={() => setRewatchability(isSelected ? null : option.value)}
+                                        className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                                            isSelected
+                                                ? "border-amber-400/30 bg-amber-400/10 text-amber-300"
+                                                : "border-white/10 bg-white/5 text-white/70 hover:border-white/20 hover:bg-white/10"
+                                        }`}
+                                    >
+                                        {option.label}
+                                    </button>
+                                )
+                            })}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="mb-2 block text-sm font-medium text-white/70">
+                            Why
+                        </label>
+                        <textarea
+                            value={rewatchabilityWhy}
+                            onChange={(e) => setRewatchabilityWhy(e.target.value)}
+                            rows={3}
+                            placeholder="What drives your rewatchability?"
+                            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-amber-400/50"
+                        />
+                    </div>
+                </div>
+            </div>
+
             {/* Notes */}
             <div>
                 <label className="mb-2 block text-sm font-medium text-white/70">
@@ -550,25 +662,7 @@ export default function DiaryForm({
             </div>
 
             {/* Toggles Row */}
-            <div className="grid gap-3 sm:grid-cols-3">
-                {/* Would Rewatch */}
-                <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                    <span className="flex items-center gap-2 text-sm text-white/70">
-                        <RotateCcw className="h-4 w-4" />
-                        Would Rewatch
-                    </span>
-                    <span className="relative inline-flex items-center">
-                        <input
-                            type="checkbox"
-                            checked={wouldRewatch}
-                            onChange={(e) => setWouldRewatch(e.target.checked)}
-                            className="peer sr-only"
-                        />
-                        <span className="h-5 w-10 rounded-full border border-white/10 bg-white/10 transition peer-checked:bg-amber-500/70" />
-                        <span className="absolute left-1 top-1 h-3 w-3 rounded-full bg-white transition peer-checked:translate-x-5" />
-                    </span>
-                </label>
-
+            <div className="grid gap-3 sm:grid-cols-2">
                 {/* Private Entry */}
                 <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
                     <span className="text-sm text-white/70">Private Entry</span>
@@ -580,24 +674,6 @@ export default function DiaryForm({
                             className="peer sr-only"
                         />
                         <span className="h-5 w-10 rounded-full border border-white/10 bg-white/10 transition peer-checked:bg-rose-500/70" />
-                        <span className="absolute left-1 top-1 h-3 w-3 rounded-full bg-white transition peer-checked:translate-x-5" />
-                    </span>
-                </label>
-
-                {/* Link to Review */}
-                <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                    <span className="flex items-center gap-2 text-sm text-white/70">
-                        <Link2 className="h-4 w-4" />
-                        Link to Review
-                    </span>
-                    <span className="relative inline-flex items-center">
-                        <input
-                            type="checkbox"
-                            checked={linkToReview}
-                            onChange={(e) => setLinkToReview(e.target.checked)}
-                            className="peer sr-only"
-                        />
-                        <span className="h-5 w-10 rounded-full border border-white/10 bg-white/10 transition peer-checked:bg-indigo-500/70" />
                         <span className="absolute left-1 top-1 h-3 w-3 rounded-full bg-white transition peer-checked:translate-x-5" />
                     </span>
                 </label>

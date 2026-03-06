@@ -2,6 +2,7 @@ import { useState } from "react"
 import RatingStars from "../ui/RatingStars"
 
 type ReviewFormValues = {
+  title: string
   rating: number
   comment: string
   containsSpoilers: boolean
@@ -20,6 +21,7 @@ export default function ReviewForm({
   onSubmit,
   submitLabel = "Publish review",
 }: ReviewFormProps) {
+  const [title, setTitle] = useState(initialValues?.title ?? "")
   const [rating, setRating] = useState(initialValues?.rating ?? 0)
   const [comment, setComment] = useState(initialValues?.comment ?? "")
   const [containsSpoilers, setContainsSpoilers] = useState(
@@ -38,6 +40,11 @@ export default function ReviewForm({
       return
     }
 
+    if (!title.trim()) {
+      setError("Please add a review title.")
+      return
+    }
+
     if (!comment.trim()) {
       setError("Please add a short review before submitting.")
       return
@@ -46,6 +53,7 @@ export default function ReviewForm({
     setSubmitting(true)
     try {
       await onSubmit({
+        title: title.trim(),
         rating,
         comment: comment.trim(),
         containsSpoilers,
@@ -64,6 +72,23 @@ export default function ReviewForm({
       onSubmit={handleSubmit}
       className="flex w-full flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-6"
     >
+      <div>
+        <label className="text-sm font-semibold text-white" htmlFor="review-title">
+          Review title
+        </label>
+        <input
+          id="review-title"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          maxLength={120}
+          className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none"
+          placeholder="Give your review a headline."
+        />
+        <div className="mt-2 flex items-center justify-end text-xs text-slate-500">
+          {title.length}/120
+        </div>
+      </div>
+
       <div>
         <p className="text-sm font-semibold text-white">Your rating</p>
         <div className="mt-2 flex items-center gap-3">

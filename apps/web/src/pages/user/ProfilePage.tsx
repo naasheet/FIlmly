@@ -10,6 +10,7 @@ import ListGrid from "../../components/lists/ListGrid"
 import type { List } from "../../stores/listStore"
 import DiaryEntry, { type DiaryEntryData } from "../../components/diary/DiaryEntry"
 import Header from "../../components/layout/Header"
+import ProfileAchievements from "../../components/profile/ProfileAchievements"
 
 type UserProfile = {
   id: string
@@ -37,6 +38,7 @@ type UserStats = {
 
 type UserReview = {
   id: string
+  title?: string | null
   rating: number
   comment?: string | null
   film: { id: number; title: string; posterPath?: string | null }
@@ -49,7 +51,7 @@ type WatchedItem = {
   film: { id: number; title: string; posterPath?: string | null; releaseDate?: string | null }
 }
 
-type TabKey = "reviews" | "diary" | "lists" | "stats" | "watched"
+type TabKey = "reviews" | "diary" | "lists" | "stats" | "watched" | "achievements"
 
 export default function ProfilePage() {
   const { username } = useParams()
@@ -421,14 +423,14 @@ export default function ProfilePage() {
 
       <main className="mx-auto w-full max-w-6xl px-6 pb-12 pt-8">
         <div className="flex flex-wrap gap-4 border-b border-white/10 pb-3 text-base">
-          {(["reviews", "diary", "watched", "lists", "stats"] as TabKey[]).map((tab) => (
+          {(["reviews", "diary", "watched", "lists", "stats", "achievements"] as TabKey[]).map((tab) => (
             <button
               key={tab}
               type="button"
               onClick={() => setActiveTab(tab)}
               className={`-mb-px border-b-2 pb-2 text-base font-semibold transition ${activeTab === tab
-                  ? "border-indigo-400 text-indigo-200"
-                  : "border-transparent text-slate-400 hover:text-slate-200"
+                ? "border-indigo-400 text-indigo-200"
+                : "border-transparent text-slate-400 hover:text-slate-200"
                 }`}
             >
               {tab === "reviews" && `Reviews (${reviews.length})`}
@@ -436,6 +438,7 @@ export default function ProfilePage() {
               {tab === "watched" && "Watched"}
               {tab === "lists" && `Lists (${visibleLists.length})`}
               {tab === "stats" && "Stats"}
+              {tab === "achievements" && "Achievements"}
             </button>
           ))}
         </div>
@@ -449,6 +452,11 @@ export default function ProfilePage() {
                 className="rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:border-white/30 hover:bg-white/10"
               >
                 <p className="text-base font-semibold text-white">{review.film.title}</p>
+                {review.title && (
+                  <p className="mt-2 text-sm font-semibold text-white">
+                    {review.title}
+                  </p>
+                )}
                 <p className="mt-2 text-sm text-slate-400">
                   Rated {review.rating} / 5
                 </p>
@@ -534,6 +542,16 @@ export default function ProfilePage() {
               reviewsWritten={stats?.reviewCount ?? 0}
               onFilmsClick={() => setActiveTab("watched")}
               onReviewsClick={() => setActiveTab("reviews")}
+            />
+          </div>
+        )}
+
+        {activeTab === "achievements" && (
+          <div className="mt-6">
+            <ProfileAchievements
+              watchedCount={stats?.watchedCount ?? 0}
+              reviewCount={stats?.reviewCount ?? 0}
+              watchlistCount={stats?.watchlistItemCount ?? stats?.watchlistCount ?? 0}
             />
           </div>
         )}
