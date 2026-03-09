@@ -446,7 +446,7 @@ export default function FilmPage() {
     <div className="min-h-screen bg-[rgb(8,8,12)]">
       <Header />
 
-      <main className="mx-auto max-w-5xl px-6 py-12">
+      <main className="mx-auto max-w-5xl px-3 py-6 sm:px-6 sm:py-12">
         {loading && (
           <div className="flex items-center justify-center py-20">
             <div className="flex items-center gap-3 text-white/50">
@@ -480,10 +480,10 @@ export default function FilmPage() {
                 <div className="absolute inset-0 bg-gradient-to-r from-[rgb(8,8,12)] via-[rgb(8,8,12)]/80 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[rgb(8,8,12)] via-transparent to-[rgb(8,8,12)]/50" />
 
-                <div className="relative grid gap-8 px-6 py-8 md:grid-cols-[280px,1fr]">
+                <div className="relative grid gap-4 px-4 py-6 sm:gap-8 sm:px-6 sm:py-8 md:grid-cols-[280px,1fr]">
                   {/* Poster */}
                   <div className="relative mx-auto md:mx-0">
-                    <div className="aspect-[2/3] w-full max-w-[280px] overflow-hidden rounded-3xl border border-white/15 bg-black/40 shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
+                    <div className="aspect-[2/3] w-full max-w-[160px] overflow-hidden rounded-2xl border border-white/15 bg-black/40 shadow-[0_20px_60px_rgba(0,0,0,0.6)] sm:max-w-[280px] sm:rounded-3xl">
                       {posterUrl ? (
                         <img
                           src={posterUrl}
@@ -502,7 +502,7 @@ export default function FilmPage() {
                   </div>
 
                   {/* Info */}
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     {/* Title */}
                     <div>
                       {details.film.genres && details.film.genres.length > 0 && (
@@ -514,7 +514,7 @@ export default function FilmPage() {
                           ))}
                         </div>
                       )}
-                      <h1 className="font-['Outfit'] text-3xl font-bold text-white md:text-4xl">
+                      <h1 className="font-['Outfit'] text-xl font-bold text-white sm:text-3xl md:text-4xl">
                         {details.film.title}
                       </h1>
                       {details.film.tagline && (
@@ -727,7 +727,7 @@ export default function FilmPage() {
             {backdrops.length > 0 && (
               <section className="mb-12">
                 <h2 className="mb-4 font-['Outfit'] text-xl font-bold text-white">Images</h2>
-                <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4">
                   {backdrops.slice(0, 8).map((path, index) => (
                     <button
                       key={`${path}-${index}`}

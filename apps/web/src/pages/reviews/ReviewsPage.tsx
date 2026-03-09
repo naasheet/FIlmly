@@ -36,7 +36,7 @@ export default function ReviewsPage() {
     <div className="min-h-screen bg-[rgb(8,8,12)]">
       <Header />
 
-      <main className="mx-auto max-w-6xl px-6 py-12">
+      <main className="mx-auto max-w-6xl px-3 py-8 sm:px-6 sm:py-12">
         {/* Header */}
         <div className="mb-10">
           <h1 className="font-['Outfit'] text-3xl font-bold text-white">Your Reviews</h1>

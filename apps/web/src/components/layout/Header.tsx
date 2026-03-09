@@ -69,7 +69,7 @@ export default function Header() {
           setUser({ ...user, ...res.data })
         }
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => {
         if (active) setProfileLoaded(true)
       })
@@ -98,10 +98,10 @@ export default function Header() {
       {/* Ambient glow accent line */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
 
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-6 py-4">
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-3 py-2.5 sm:gap-6 sm:px-6 sm:py-4">
         {/* Logo */}
         <Link to="/" className="group flex items-center gap-3">
-          <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-[rgb(14,14,18)] p-1 shadow-lg shadow-black/40 transition-all duration-500 group-hover:shadow-black/60 group-hover:scale-105">
+          <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-[rgb(14,14,18)] p-1 shadow-lg shadow-black/40 transition-all duration-500 group-hover:shadow-black/60 group-hover:scale-105 sm:h-11 sm:w-11">
             <img
               src="/assets/logo.png"
               alt="Filmly logo"
@@ -110,7 +110,7 @@ export default function Header() {
           </div>
           <div className="transition-transform duration-300 group-hover:translate-x-0.5">
             <p className="font-['Outfit'] text-base font-semibold tracking-tight text-white">Filmly</p>
-            <p className="text-[0.65rem] font-medium uppercase tracking-[0.2em] text-amber-400/80">Curate your cinema</p>
+            <p className="hidden text-[0.65rem] font-medium uppercase tracking-[0.2em] text-amber-400/80 sm:block">Curate your cinema</p>
           </div>
         </Link>
 
@@ -147,8 +147,8 @@ export default function Header() {
               type="button"
               onClick={() => setCreateOpen((prev) => !prev)}
               className={`group flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300 ${createOpen
-                  ? "border-amber-400/50 bg-amber-400/10 text-amber-300"
-                  : "border-amber-400/30 bg-amber-400/10 text-amber-300 hover:border-amber-400/50 hover:bg-amber-400/20"
+                ? "border-amber-400/50 bg-amber-400/10 text-amber-300"
+                : "border-amber-400/30 bg-amber-400/10 text-amber-300 hover:border-amber-400/50 hover:bg-amber-400/20"
                 }`}
             >
               <Plus className={`h-4 w-4 transition-transform duration-300 ${createOpen ? "rotate-45" : ""}`} />
@@ -178,30 +178,30 @@ export default function Header() {
                 </div>
               </Link>
 
-                <div
-                  role="button"
-                  tabIndex={0}
-                    onClick={() => {
-                      setCreateOpen(false)
-                      navigate("/me/lists?create=1")
-                    }}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault()
-                      setCreateOpen(false)
-                      navigate("/me/lists?create=1")
-                    }
-                  }}
-                  className="mt-2 flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-200 transition-all duration-200 hover:bg-amber-400/10 hover:text-amber-300"
-                >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-400/10">
-                    <ListPlus className="h-4 w-4 text-amber-400" />
-                  </div>
-                  <div className="text-left">
-                    <p className="font-medium">List</p>
-                    <p className="text-[10px] text-slate-400">Curate films your way</p>
-                  </div>
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => {
+                  setCreateOpen(false)
+                  navigate("/me/lists?create=1")
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault()
+                    setCreateOpen(false)
+                    navigate("/me/lists?create=1")
+                  }
+                }}
+                className="mt-2 flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-200 transition-all duration-200 hover:bg-amber-400/10 hover:text-amber-300"
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-400/10">
+                  <ListPlus className="h-4 w-4 text-amber-400" />
                 </div>
+                <div className="text-left">
+                  <p className="font-medium">List</p>
+                  <p className="text-[10px] text-slate-400">Curate films your way</p>
+                </div>
+              </div>
 
             </div>
           </div>

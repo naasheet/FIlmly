@@ -309,7 +309,7 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen bg-[rgb(8,8,12)] text-slate-200">
         <Header />
-        <div className="mx-auto w-full max-w-6xl px-6 py-10">
+        <div className="mx-auto w-full max-w-6xl px-3 py-8 sm:px-6 sm:py-10">
           <p className="text-base text-slate-400">Loading profile...</p>
         </div>
       </div>
@@ -320,7 +320,7 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen bg-[rgb(8,8,12)] text-slate-200">
         <Header />
-        <div className="mx-auto w-full max-w-6xl px-6 py-10">
+        <div className="mx-auto w-full max-w-6xl px-3 py-8 sm:px-6 sm:py-10">
           <div className="rounded-2xl border border-rose-500/20 bg-rose-500/10 p-4 text-base text-rose-200">
             {error}
           </div>
@@ -333,7 +333,7 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen bg-[rgb(8,8,12)] text-slate-200">
         <Header />
-        <div className="mx-auto w-full max-w-6xl px-6 py-10">
+        <div className="mx-auto w-full max-w-6xl px-3 py-8 sm:px-6 sm:py-10">
           <p className="text-base text-slate-400">Profile not found.</p>
         </div>
       </div>

@@ -104,7 +104,7 @@ export default function SettingsPage() {
     return (
       <div className="min-h-screen bg-[rgb(8,8,12)] text-slate-200">
         <Header />
-        <div className="mx-auto w-full max-w-6xl px-6 py-10">
+        <div className="mx-auto w-full max-w-6xl px-3 py-8 sm:px-6 sm:py-10">
           <p className="text-base text-slate-400">Loading settings...</p>
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-[rgb(8,8,12)] text-slate-200">
       <Header />
-      <main className="mx-auto w-full max-w-6xl px-6 py-10">
+      <main className="mx-auto w-full max-w-6xl px-3 py-8 sm:px-6 sm:py-10">
         <button
           type="button"
           onClick={handleBack}

@@ -71,7 +71,7 @@ export default function PersonPage() {
     return (
       <div className="min-h-screen bg-[rgb(8,8,12)] text-slate-200">
         <Header />
-        <div className="mx-auto w-full max-w-6xl px-6 py-10">
+        <div className="mx-auto w-full max-w-6xl px-3 py-8 sm:px-6 sm:py-10">
           <p className="text-sm text-slate-400">Loading person...</p>
         </div>
       </div>
@@ -82,7 +82,7 @@ export default function PersonPage() {
     return (
       <div className="min-h-screen bg-[rgb(8,8,12)] text-slate-200">
         <Header />
-        <div className="mx-auto w-full max-w-6xl px-6 py-10">
+        <div className="mx-auto w-full max-w-6xl px-3 py-8 sm:px-6 sm:py-10">
           <button
             type="button"
             onClick={() => navigate(-1)}
@@ -102,7 +102,7 @@ export default function PersonPage() {
     return (
       <div className="min-h-screen bg-[rgb(8,8,12)] text-slate-200">
         <Header />
-        <div className="mx-auto w-full max-w-6xl px-6 py-10">
+        <div className="mx-auto w-full max-w-6xl px-3 py-8 sm:px-6 sm:py-10">
           <p className="text-sm text-slate-400">Person not found.</p>
         </div>
       </div>
@@ -249,8 +249,8 @@ export default function PersonPage() {
                     type="button"
                     onClick={() => setActiveTab("acting")}
                     className={`-mb-px border-b-2 pb-2 text-sm font-semibold transition ${activeTab === "acting"
-                        ? "border-indigo-400 text-indigo-200"
-                        : "border-transparent text-slate-400 hover:text-slate-200"
+                      ? "border-indigo-400 text-indigo-200"
+                      : "border-transparent text-slate-400 hover:text-slate-200"
                       }`}
                   >
                     Acting ({credits.acting.length})
@@ -261,8 +261,8 @@ export default function PersonPage() {
                     type="button"
                     onClick={() => setActiveTab("directing")}
                     className={`-mb-px border-b-2 pb-2 text-sm font-semibold transition ${activeTab === "directing"
-                        ? "border-indigo-400 text-indigo-200"
-                        : "border-transparent text-slate-400 hover:text-slate-200"
+                      ? "border-indigo-400 text-indigo-200"
+                      : "border-transparent text-slate-400 hover:text-slate-200"
                       }`}
                   >
                     Directing ({credits.directing.length})
@@ -273,8 +273,8 @@ export default function PersonPage() {
                     type="button"
                     onClick={() => setActiveTab("writing")}
                     className={`-mb-px border-b-2 pb-2 text-sm font-semibold transition ${activeTab === "writing"
-                        ? "border-indigo-400 text-indigo-200"
-                        : "border-transparent text-slate-400 hover:text-slate-200"
+                      ? "border-indigo-400 text-indigo-200"
+                      : "border-transparent text-slate-400 hover:text-slate-200"
                       }`}
                   >
                     Writing ({credits.writing.length})
