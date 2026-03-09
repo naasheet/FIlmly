@@ -229,7 +229,7 @@ export default function DiaryPage() {
 
         // Empty cells for days before the first day
         for (let i = 0; i < firstDay; i++) {
-            days.push(<div key={`empty-${i}`} className="h-20" />)
+            days.push(<div key={`empty-${i}`} className="h-14 sm:h-20" />)
         }
 
         // Days of the month
@@ -346,7 +346,7 @@ export default function DiaryPage() {
                 {/* Stats Bar */}
                 {statsData && (
                     <div
-                        className={`mb-6 grid grid-cols-2 gap-3 rounded-2xl border border-white/5 bg-white/[0.02] p-4 sm:grid-cols-${Object.keys(statsData.formatDistribution).length > 0 ? "3" : "2"
+                        className={`mb-6 grid grid-cols-2 gap-3 rounded-2xl border border-white/5 bg-white/[0.02] p-4 ${Object.keys(statsData.formatDistribution).length > 0 ? "sm:grid-cols-3" : "sm:grid-cols-2"
                             }`}
                     >
                         <div>
@@ -909,9 +909,9 @@ export default function DiaryPage() {
                                 </div>
 
                                 {(selectedEntry.expectedRating !== null && selectedEntry.expectedRating !== undefined) ||
-                                (selectedEntry.actualRating !== null && selectedEntry.actualRating !== undefined) ||
-                                selectedEntry.expectedNote ||
-                                selectedEntry.actualNote ? (
+                                    (selectedEntry.actualRating !== null && selectedEntry.actualRating !== undefined) ||
+                                    selectedEntry.expectedNote ||
+                                    selectedEntry.actualNote ? (
                                     <div>
                                         <p className="text-xs uppercase tracking-wider text-white/40">
                                             Expectation vs Reality

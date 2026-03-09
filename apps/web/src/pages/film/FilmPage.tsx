@@ -482,7 +482,7 @@ export default function FilmPage() {
 
                 <div className="relative grid gap-8 px-6 py-8 md:grid-cols-[280px,1fr]">
                   {/* Poster */}
-                  <div className="relative">
+                  <div className="relative mx-auto md:mx-0">
                     <div className="aspect-[2/3] w-full max-w-[280px] overflow-hidden rounded-3xl border border-white/15 bg-black/40 shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
                       {posterUrl ? (
                         <img
@@ -600,7 +600,7 @@ export default function FilmPage() {
                         type="button"
                         onClick={handleWatchlistToggle}
                         disabled={watchlistBusy || watched}
-                        className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-all ${watched
+                        className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium transition-all sm:px-5 sm:py-2.5 sm:text-sm ${watched
                           ? "cursor-not-allowed bg-white/5 text-white/40"
                           : inWatchlist
                             ? "bg-amber-400 text-black"
@@ -615,7 +615,7 @@ export default function FilmPage() {
                         type="button"
                         onClick={handleWatchedToggle}
                         disabled={watchedBusy}
-                        className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-all ${watched
+                        className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium transition-all sm:px-5 sm:py-2.5 sm:text-sm ${watched
                           ? "bg-emerald-500/20 text-emerald-400"
                           : "bg-white/10 text-white hover:bg-white/20"
                           }`}
@@ -637,7 +637,7 @@ export default function FilmPage() {
                           setShowReviewForm(true)
                         }}
                         disabled={Boolean(userReview)}
-                        className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-all ${userReview
+                        className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium transition-all sm:px-5 sm:py-2.5 sm:text-sm ${userReview
                           ? "cursor-not-allowed bg-white/5 text-white/40"
                           : "bg-white/10 text-white hover:bg-white/20"
                           }`}
@@ -649,7 +649,7 @@ export default function FilmPage() {
                       <button
                         type="button"
                         onClick={() => setChatOpen(true)}
-                        className="flex items-center gap-2 rounded-xl border border-amber-400/40 bg-amber-400/10 px-5 py-2.5 text-sm font-semibold text-amber-200 transition hover:border-amber-400/70 hover:bg-amber-400/20"
+                        className="flex items-center gap-2 rounded-xl border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-xs font-semibold text-amber-200 transition hover:border-amber-400/70 hover:bg-amber-400/20 sm:px-5 sm:py-2.5 sm:text-sm"
                       >
                         Discussion
                       </button>
@@ -693,7 +693,7 @@ export default function FilmPage() {
             {cast.length > 0 && (
               <section className="mb-12">
                 <h2 className="mb-4 font-['Outfit'] text-xl font-bold text-white">Cast</h2>
-                <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-5">
+                <div className="grid gap-3 grid-cols-2 md:grid-cols-5">
                   {cast.map((member) => (
                     <Link
                       key={member.id}

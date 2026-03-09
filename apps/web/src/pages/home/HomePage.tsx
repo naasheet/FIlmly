@@ -272,12 +272,12 @@ export default function HomePage() {
     <div className="min-h-screen bg-[rgb(8,8,12)]">
       <Header />
 
-      <main className="mx-auto max-w-6xl px-6 py-12 animate-fade-in">
+      <main className="mx-auto max-w-6xl px-4 py-8 animate-fade-in sm:px-6 sm:py-12">
         {/* Featured + Stats Grid */}
         <section className="mb-16">
           <div className="grid gap-4 md:grid-cols-3 md:items-stretch">
             {spotlightFilms.length > 0 && (
-              <div className="group relative h-full min-h-[420px] overflow-hidden rounded-3xl border border-white/10 bg-[rgb(18,18,24)] md:col-span-2 md:min-h-[520px]">
+              <div className="group relative h-full min-h-[320px] overflow-hidden rounded-3xl border border-white/10 bg-[rgb(18,18,24)] sm:min-h-[420px] md:col-span-2 md:min-h-[520px]">
                 <HeroSpotlight
                   films={spotlightFilms.map((film) => ({
                     id: film.id,

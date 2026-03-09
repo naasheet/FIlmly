@@ -484,7 +484,7 @@ export function DiaryDay({ date, entries, onSelect }: DiaryDayProps) {
 
     if (entries.length === 0) {
         return (
-            <div className="flex h-20 flex-col items-center justify-center rounded-lg border border-white/5 bg-white/[0.01] text-white/30">
+            <div className="flex h-14 flex-col items-center justify-center rounded-lg border border-white/5 bg-white/[0.01] text-white/30 sm:h-20">
                 <span className="text-sm">{day}</span>
             </div>
         )
@@ -495,7 +495,7 @@ export function DiaryDay({ date, entries, onSelect }: DiaryDayProps) {
             <button
                 type="button"
                 onClick={() => onSelect(date, entries)}
-                className="group relative flex h-20 w-full flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.03] p-1 text-left transition-all hover:border-amber-400/30"
+                className="group relative flex h-14 w-full flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.03] p-1 text-left transition-all hover:border-amber-400/30 sm:h-20"
             >
                 {/* Date */}
                 <span className="text-xs font-medium text-white/70">{day}</span>
@@ -541,7 +541,7 @@ export function DiaryDay({ date, entries, onSelect }: DiaryDayProps) {
     return (
         <Link
             to={`/diary?date=${date}`}
-            className="group relative flex h-20 w-full flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.03] p-1 text-left transition-all hover:border-amber-400/30"
+            className="group relative flex h-14 w-full flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.03] p-1 text-left transition-all hover:border-amber-400/30 sm:h-20"
         >
             {/* Date */}
             <span className="text-xs font-medium text-white/70">{day}</span>

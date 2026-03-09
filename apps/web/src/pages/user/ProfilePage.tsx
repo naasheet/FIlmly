@@ -348,7 +348,7 @@ export default function ProfilePage() {
         <div className="mx-auto w-full max-w-6xl px-6 pb-10 pt-10">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-6">
-              <div className="h-28 w-28 overflow-hidden rounded-full border border-white/10 bg-slate-900/70">
+              <div className="h-20 w-20 overflow-hidden rounded-full border border-white/10 bg-slate-900/70 md:h-28 md:w-28">
                 {profile.avatarUrl ? (
                   <img
                     src={profile.avatarUrl}
@@ -362,7 +362,7 @@ export default function ProfilePage() {
                 )}
               </div>
               <div>
-                <h1 className="font-['Outfit'] text-3xl font-semibold text-white">
+                <h1 className="font-['Outfit'] text-2xl font-semibold text-white md:text-3xl">
                   {profile.name ?? profile.username}
                 </h1>
                 <p className="mt-1 text-base text-slate-400">@{profile.username}</p>
@@ -422,13 +422,13 @@ export default function ProfilePage() {
       </section>
 
       <main className="mx-auto w-full max-w-6xl px-6 pb-12 pt-8">
-        <div className="flex flex-wrap gap-4 border-b border-white/10 pb-3 text-base">
+        <div className="flex gap-4 overflow-x-auto border-b border-white/10 pb-3 text-base scrollbar-hide">
           {(["reviews", "diary", "watched", "lists", "stats", "achievements"] as TabKey[]).map((tab) => (
             <button
               key={tab}
               type="button"
               onClick={() => setActiveTab(tab)}
-              className={`-mb-px border-b-2 pb-2 text-base font-semibold transition ${activeTab === tab
+              className={`-mb-px whitespace-nowrap border-b-2 pb-2 text-sm font-semibold transition sm:text-base ${activeTab === tab
                 ? "border-indigo-400 text-indigo-200"
                 : "border-transparent text-slate-400 hover:text-slate-200"
                 }`}

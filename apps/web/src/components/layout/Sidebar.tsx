@@ -33,13 +33,14 @@ export default function Sidebar() {
         window.location.href = "/login"
     }
 
+
     return (
         <>
             {/* Sidebar */}
             <aside
                 onMouseEnter={() => setExpanded(true)}
                 onMouseLeave={() => setExpanded(false)}
-                className={`fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-white/5 bg-[rgb(12,12,16)]/95 backdrop-blur-xl transition-all duration-300 ease-out ${expanded ? "w-64" : "w-20"
+                className={`fixed left-0 top-0 z-50 hidden h-screen flex-col border-r border-white/5 bg-[rgb(12,12,16)]/95 backdrop-blur-xl transition-all duration-300 ease-out md:flex ${expanded ? "w-64" : "w-20"
                     }`}
             >
                 {/* Logo */}
@@ -79,8 +80,8 @@ export default function Sidebar() {
                                 key={item.path}
                                 to={item.path}
                                 className={`group flex items-center gap-3 rounded-xl px-3 py-3 transition-all duration-200 ${isActive
-                                        ? "bg-amber-400/10 text-amber-400"
-                                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                                    ? "bg-amber-400/10 text-amber-400"
+                                    : "text-slate-400 hover:bg-white/5 hover:text-white"
                                     } ${expanded ? "" : "justify-center"}`}
                             >
                                 <item.icon className={`h-5 w-5 shrink-0 ${isActive ? "text-amber-400" : ""}`} />
@@ -204,7 +205,7 @@ export default function Sidebar() {
             )}
 
             {/* Spacer for main content */}
-            <div className="w-20 shrink-0" />
+            <div className="hidden w-20 shrink-0 md:block" />
         </>
     )
 }

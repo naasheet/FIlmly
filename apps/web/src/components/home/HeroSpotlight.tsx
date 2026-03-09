@@ -128,7 +128,7 @@ export default function HeroSpotlight({
                     : "items-end pb-16"
                     }`}
             >
-                <div className="w-full max-w-3xl space-y-6 px-8 lg:px-12">
+                <div className="w-full max-w-3xl space-y-4 px-5 sm:space-y-6 sm:px-8 lg:px-12">
                     {/* Genres */}
                     {currentFilm.genres && currentFilm.genres.length > 0 && (
                         <div className="flex flex-wrap gap-2">
@@ -145,7 +145,7 @@ export default function HeroSpotlight({
 
                     {/* Title */}
                     <h1
-                        className={`font-['Outfit'] text-4xl font-bold leading-tight text-white transition-all duration-500 md:text-5xl lg:text-6xl ${isTransitioning ? "translate-y-4 opacity-0" : "translate-y-0 opacity-100"
+                        className={`font-['Outfit'] text-2xl font-bold leading-tight text-white transition-all duration-500 sm:text-4xl md:text-5xl lg:text-6xl ${isTransitioning ? "translate-y-4 opacity-0" : "translate-y-0 opacity-100"
                             }`}
                         style={{ textShadow: "0 4px 12px rgba(0, 0, 0, 0.8)" }}
                     >
@@ -169,7 +169,7 @@ export default function HeroSpotlight({
                     {/* Overview */}
                     {currentFilm.overview && (
                         <p
-                            className={`max-w-xl min-h-[4.5rem] text-base leading-relaxed text-slate-200 transition-all duration-500 delay-100 md:min-h-[5.5rem] md:text-lg ${isTransitioning ? "translate-y-4 opacity-0" : "translate-y-0 opacity-100"
+                            className={`max-w-xl text-sm leading-relaxed text-slate-200 transition-all duration-500 delay-100 sm:min-h-[4.5rem] sm:text-base md:min-h-[5.5rem] md:text-lg ${isTransitioning ? "translate-y-4 opacity-0" : "translate-y-0 opacity-100"
                                 } line-clamp-3 md:line-clamp-4`}
                             style={{ textShadow: "0 3px 10px rgba(0, 0, 0, 0.7)" }}
                         >
