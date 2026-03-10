@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom"
 import { lazy, Suspense } from "react"
+import { SpeedInsights } from "@vercel/speed-insights/react"
 import LoginPage from "./pages/auth/LoginPage"
 import SignupPage from "./pages/auth/SignupPage"
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage"
@@ -32,7 +33,8 @@ const PageLoader = () => (
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -148,6 +150,8 @@ export default function App() {
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      </Routes>
+      <SpeedInsights />
+    </>
   )
 }
