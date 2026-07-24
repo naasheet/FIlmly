@@ -1,5 +1,5 @@
 import type { Request, Response } from "express"
-import { supabaseAdmin } from "../services/supabaseAdmin"
+import { supabaseAdmin } from "../config/supabaseAdmin"
 
 export async function updateMessageHandler(req: Request, res: Response) {
   try {

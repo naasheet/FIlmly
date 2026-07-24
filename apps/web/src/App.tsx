@@ -3,6 +3,7 @@ import { lazy, Suspense } from "react"
 import LoginPage from "./pages/auth/LoginPage"
 import SignupPage from "./pages/auth/SignupPage"
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage"
+import AuthCallbackPage from "./pages/auth/AuthCallbackPage"
 import ProtectedRoute from "./components/ProtectedRoute"
 import HomePage from "./pages/home/HomePage"
 import SearchResultsPage from "./pages/search/SearchResultsPage"
@@ -36,6 +37,7 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
       <Route path="/" element={<HomePage />} />
       <Route

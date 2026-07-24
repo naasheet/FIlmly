@@ -106,10 +106,13 @@ export async function createReview(data: CreateReviewInput) {
   })
 }
 
-export async function updateReview(id: string, data: UpdateReviewInput) {
+export async function updateReview(id: string, userId: string, data: UpdateReviewInput) {
   const existing = await prisma.review.findUnique({ where: { id } })
   if (!existing) {
     throw new Error("Review not found")
+  }
+  if (existing.userId !== userId) {
+    throw new Error("Not authorized to update this review")
   }
 
   const updated = await prisma.review.update({

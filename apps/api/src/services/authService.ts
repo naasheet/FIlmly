@@ -99,8 +99,46 @@ export async function register(data: RegisterInput) {
       username: data.username,
       name: data.name,
       passwordHash,
+      authProvider: "email",
     },
   })
+
+  const tokens = await generateTokens(user.id)
+  return { user, tokens }
+}
+
+export async function socialLogin(params: {
+  email: string
+  name?: string | null
+  avatarUrl?: string | null
+  authProvider: string
+}) {
+  let user = await prisma.user.findUnique({ where: { email: params.email } })
+
+  if (user) {
+    // Update name/avatar if they were empty
+    const updates: Record<string, string> = {}
+    if (!user.name && params.name) updates.name = params.name
+    if (!user.avatarUrl && params.avatarUrl) updates.avatarUrl = params.avatarUrl
+    if (Object.keys(updates).length > 0) {
+      user = await prisma.user.update({ where: { id: user.id }, data: updates })
+    }
+  } else {
+    // Create new user with auto-generated username
+    const prefix = params.email.split("@")[0].replace(/[^a-zA-Z0-9]/g, "")
+    const suffix = Math.floor(1000 + Math.random() * 9000)
+    const username = `${prefix}${suffix}`
+
+    user = await prisma.user.create({
+      data: {
+        email: params.email,
+        username,
+        name: params.name ?? undefined,
+        avatarUrl: params.avatarUrl ?? undefined,
+        authProvider: params.authProvider,
+      },
+    })
+  }
 
   const tokens = await generateTokens(user.id)
   return { user, tokens }
@@ -110,6 +148,12 @@ export async function login(data: LoginInput) {
   const user = await findUserByIdentifier(data.identifier)
   if (!user) {
     throw new Error("Invalid credentials")
+  }
+
+  if (!user.passwordHash) {
+    throw new Error(
+      "This account uses social login. Please sign in with Google/Apple or use 'Forgot password' to set a password."
+    )
   }
 
   const isValid = await bcrypt.compare(data.password, user.passwordHash)

@@ -88,3 +88,18 @@ export async function resetPassword(params: {
     throw new Error(normalizeApiError(error))
   }
 }
+
+export async function socialLogin(accessToken: string, provider: string) {
+  try {
+    const res = await api.post<{ user: AuthUser; tokens: TokenPair }>(
+      "/auth/social",
+      { accessToken, provider }
+    )
+    return res.data
+  } catch (error) {
+    throw new Error(normalizeApiError(error))
+  }
+}
+
+export { supabase } from "../lib/supabase"
+

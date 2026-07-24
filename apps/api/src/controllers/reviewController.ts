@@ -104,8 +104,12 @@ export const updateHandler: Handler = async (req, res) => {
   }
 
   try {
+    const userId = req.user?.id
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" })
+    }
     const reviewId = String(req.params.id)
-    const result = await updateReview(reviewId, {
+    const result = await updateReview(reviewId, userId, {
       title: req.body.title,
       rating: req.body.rating,
       comment: req.body.comment,
@@ -115,6 +119,9 @@ export const updateHandler: Handler = async (req, res) => {
     })
     return res.status(200).json(result)
   } catch (error: any) {
+    if (error.message === "Not authorized to update this review") {
+      return res.status(403).json({ message: error.message })
+    }
     return res.status(400).json({ message: error.message ?? "Failed to update review" })
   }
 }

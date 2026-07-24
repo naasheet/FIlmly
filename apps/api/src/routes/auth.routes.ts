@@ -7,7 +7,9 @@ import {
   register,
   requestPasswordReset,
   resetPassword,
+  socialLogin,
 } from "../services/authService"
+import { supabaseAdmin } from "../config/supabaseAdmin"
 
 const router = Router()
 const resetCodeLengthRaw = Number(process.env.RESET_CODE_LENGTH ?? "6")
@@ -123,6 +125,44 @@ router.post(
       return res.status(200).json(result)
     } catch (error: any) {
       return res.status(400).json({ message: error.message ?? "Reset failed" })
+    }
+  }
+)
+
+router.post(
+  "/social",
+  [
+    body("accessToken").isString().isLength({ min: 10 }),
+    body("provider").isString().isIn(["google", "apple"]),
+  ],
+  validate,
+  async (req, res) => {
+    try {
+      const { accessToken, provider } = req.body
+
+      // Verify token with Supabase
+      const {
+        data: { user: supaUser },
+        error: supaError,
+      } = await supabaseAdmin.auth.getUser(accessToken)
+
+      if (supaError || !supaUser || !supaUser.email) {
+        return res.status(401).json({ message: "Invalid social login token" })
+      }
+
+      const meta = supaUser.user_metadata ?? {}
+      const result = await socialLogin({
+        email: supaUser.email,
+        name: meta.full_name || meta.name || null,
+        avatarUrl: meta.avatar_url || meta.picture || null,
+        authProvider: provider,
+      })
+
+      return res.status(200).json(result)
+    } catch (error: any) {
+      return res
+        .status(400)
+        .json({ message: error.message ?? "Social login failed" })
     }
   }
 )
